@@ -143,11 +143,15 @@ function CarStage({o}){
     if(o.med) layers.push(IMG.ov_medallon);
     if(o.cajuela) layers.push(IMG.ov_cajuela);
   }
+  // Las imágenes tienen mucho espacio transparente; el carro está centrado-arriba.
+  // Acercamos la "cámara" con scale + anclaje superior para llenar el cuadro.
+  const layerStyle={position:"absolute",inset:0,width:"100%",height:"100%",
+    objectFit:"contain",objectPosition:"center 22%",transform:"scale(2.1)",transformOrigin:"center 22%"};
   return(
-    <div style={{borderRadius:18,background:"linear-gradient(160deg,#fbfbfd,#f2f2f4)",marginBottom:"2rem",padding:"0.5rem"}}>
-      <div style={{position:"relative",width:"100%",aspectRatio:"3 / 4",maxHeight:340,margin:"0 auto"}}>
-        <img src={base} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain",zIndex:1}}/>
-        {layers.map((s,i)=><img key={s} src={s} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain",zIndex:10+i}}/>)}
+    <div style={{borderRadius:18,background:"linear-gradient(160deg,#fbfbfd,#f2f2f4)",marginBottom:"2rem",padding:"0.5rem",overflow:"hidden"}}>
+      <div style={{position:"relative",width:"100%",aspectRatio:"16 / 10",maxHeight:300,margin:"0 auto",overflow:"hidden"}}>
+        <img src={base} alt="" style={{...layerStyle,zIndex:1}}/>
+        {layers.map((s,i)=><img key={s} src={s} alt="" style={{...layerStyle,zIndex:10+i}}/>)}
       </div>
     </div>
   );
