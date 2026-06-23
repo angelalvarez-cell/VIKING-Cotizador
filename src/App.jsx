@@ -146,7 +146,7 @@ function CarStage({o}){
   // Las imágenes tienen mucho espacio transparente; el carro está centrado-arriba.
   // Acercamos la "cámara" con scale + anclaje superior para llenar el cuadro.
   const layerStyle={position:"absolute",inset:0,width:"100%",height:"100%",
-    objectFit:"contain",objectPosition:"center 22%",transform:"scale(2.1)",transformOrigin:"center 22%"};
+    objectFit:"contain",objectPosition:"center 12%",transform:"scale(2.9)",transformOrigin:"center 12%"};
   return(
     <div style={{borderRadius:18,background:"linear-gradient(160deg,#fbfbfd,#f2f2f4)",marginBottom:"2rem",padding:"0.5rem",overflow:"hidden"}}>
       <div style={{position:"relative",width:"100%",aspectRatio:"16 / 10",maxHeight:300,margin:"0 auto",overflow:"hidden"}}>
