@@ -189,6 +189,19 @@ const VIKING_INFO = {
   web: "gav.mx · @viking.gav",
 };
 
+// URL del Web App de Google Sheets (pegar la que termina en /exec)
+const SHEETS_URL = "PEGAR_AQUI_TU_URL_DE_APPS_SCRIPT";
+
+// Guarda una cotización en Google Sheets
+async function guardarEnSheets(payload){
+  if(!SHEETS_URL || SHEETS_URL.startsWith("PEGAR")) throw new Error("URL de Sheets no configurada");
+  const res = await fetch(SHEETS_URL, {
+    method:"POST",
+    body: JSON.stringify(payload),
+  });
+  return res.json().catch(()=>({ok:true})); // Apps Script a veces no devuelve JSON limpio
+}
+
 // Folio único basado en fecha + aleatorio (ej. VK-260623-4821)
 function makeFolio(){
   const d=new Date();
@@ -202,6 +215,7 @@ function makeFolio(){
 const INK="#0a0a0a"; const MUTED="#86868b"; const SEP="rgba(0,0,0,0.07)";
 const OPT_NAMES=["Opción A","Opción B","Opción C"];
 const ATIENDE = ["Ángel Álvarez","Carlos García","Javier Fernández","Jesús Landeros"];
+const ADMIN_PASS = "viking2026"; // cambia esto por tu contraseña de admin
 const blankOpt=()=>({tipo:"camioneta",lat:null,latT:"p",med:false,medT:"p",para:false,puertas:0,cajuela:false,posteB:false,posteC:false,posteD:false,carga:false,techo:false});
 
 function Shield({size=34,color="currentColor"}){
@@ -413,13 +427,44 @@ function OptionEditor({o,set}){
 function PrintView({opts,name,vehicleStr,asesor,folio,onBack}){
   const active=opts.filter(o=>buildItems(o).length>0);
   const multi=active.length>1;
+  const [saving,setSaving]=useState(false);
+  const [saved,setSaved]=useState(false);
+  const [saveErr,setSaveErr]=useState("");
+
+  async function guardar(){
+    setSaving(true); setSaveErr("");
+    try{
+      // Arma resumen de zonas y montos de todas las opciones
+      const zonasTxt = active.map((o,i)=>{
+        const labels=buildItems(o).map(it=>it.label).join("; ");
+        return (multi?`${OPT_NAMES[i]}: `:"")+labels;
+      }).join(" || ");
+      const totalGral = active.reduce((s,o)=>s+totals(o).total,0);
+      const subGral = active.reduce((s,o)=>s+totals(o).sub,0);
+      await guardarEnSheets({
+        fecha: new Date().toLocaleString("es-MX"),
+        folio, atendio: asesor||"", cliente: name||"", vehiculo: vehicleStr||"",
+        tipo: active[0]?.tipo||"", opciones: active.length,
+        zonas: zonasTxt, subtotal: subGral, total: totalGral, estado:"Pendiente",
+      });
+      setSaved(true);
+    }catch(e){ setSaveErr(e.message||"Error al guardar"); }
+    setSaving(false);
+  }
+
   return(
     <div>
       <style>{`@media print{.np{display:none!important}.opt-sec{break-inside:avoid}}`}</style>
-      <div className="np" style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.5rem",paddingBottom:"1rem",borderBottom:`1px solid ${SEP}`}}>
+      <div className="np" style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.5rem",paddingBottom:"1rem",borderBottom:`1px solid ${SEP}`,gap:10}}>
         <button onClick={onBack} style={{background:"none",border:"none",fontSize:15,color:MUTED,cursor:"pointer",fontFamily:"inherit",padding:0}}>← Editar</button>
-        <button onClick={()=>window.print()} style={{padding:"10px 24px",borderRadius:100,background:INK,color:"#fff",border:"none",fontSize:14,cursor:"pointer",fontFamily:"inherit"}}>Imprimir / Guardar PDF</button>
+        <div style={{display:"flex",gap:10,alignItems:"center"}}>
+          {saved
+            ? <span style={{fontSize:14,color:"#4d7c0f",fontWeight:500}}>✓ Guardada</span>
+            : <button onClick={guardar} disabled={saving} style={{padding:"10px 20px",borderRadius:100,background:"transparent",color:INK,border:`1.5px solid ${INK}`,fontSize:14,cursor:saving?"default":"pointer",fontFamily:"inherit",opacity:saving?.5:1}}>{saving?"Guardando…":"Guardar en historial"}</button>}
+          <button onClick={()=>window.print()} style={{padding:"10px 24px",borderRadius:100,background:INK,color:"#fff",border:"none",fontSize:14,cursor:"pointer",fontFamily:"inherit"}}>Imprimir / Guardar PDF</button>
+        </div>
       </div>
+      {saveErr && <div className="np" style={{fontSize:12,color:"#b91c1c",marginBottom:"1rem",textAlign:"right"}}>No se pudo guardar: {saveErr}</div>}
       <div style={{background:"#fff",color:"#111",maxWidth:580}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:22,paddingBottom:18,borderBottom:"1.5px solid #111"}}>
           <Logo h={92} variant="negro"/>
@@ -501,11 +546,14 @@ function PrintView({opts,name,vehicleStr,asesor,folio,onBack}){
 
 export default function App(){
   const [view,setView]=useState("config");
+  const [admin,setAdmin]=useState(false);
   const [name,setName]=useState(""); const [brand,setBrand]=useState(""); const [model,setModel]=useState(""); const [year,setYear]=useState("");
   const [asesor,setAsesor]=useState("");
   const [folio]=useState(makeFolio);
   const [opts,setOpts]=useState([blankOpt()]);
   const [active,setActive]=useState(0);
+
+  if(admin) return <AdminView onBack={()=>setAdmin(false)}/>;
 
   const models=brand&&BRANDS[brand]?BRANDS[brand]:[];
   const vehicleStr=[brand,model,year].filter(Boolean).join(" ");
@@ -603,6 +651,8 @@ export default function App(){
           </div>
         </div>
       )}
+
+      <AdminGate onEnter={()=>setAdmin(true)}/>
     </div>
   );
 }
