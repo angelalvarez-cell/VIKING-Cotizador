@@ -78,12 +78,81 @@ const BRANDS = {
 };
 const YEARS = Array.from({length:14},(_,i)=>2026-i);
 
-const CAR_KEYWORDS = ["A1","A3","A4","A5","A6","A7","A8","S3","S4","S5","S6","S7","S8","RS3","RS5","RS6","RS7","R8","TT","Series","218","220","230","235","240","320","330","340","430","440","520","530","540","550","730","740","750","M2","M3","M4","M5","M8","M340","M440","M550","i4","i5","i7","Z4","CT4","CT5","CTS","Camaro","Corvette","Malibu","Onix","Aveo","Spark","Attitude","Charger","Challenger","Dart","California","Portofino","Roma","296","F8","812","GTC4Lusso","SF90","Daytona","500","Mustang","Model A","Fiesta","Focus","Fusion","G70","G80","G90","Accord","Civic","City","Fit","Insight","Elantra","Sonata","Accent","Ioniq 6","Q50","Q60","E-Type","F-Type","XF","XJ","XE","Stinger","Forte","Rio","K5","Diablo","Aventador","Gallardo","Murciélago","Murcielago","Huracán","Huracan","Countach","Revuelto","IS","ES","LC","LS","RC","GS","Ghibli","Quattroporte","MC20","GranTurismo","190 SL","300 SL","A 200","A-Class","A 35","A 45","B-Class","B 200","C 200","C 300","C-Class","C 43","C 63","CLA","CLE","CLS","E 200","E 350","E 450","E-Class","E 53","E 63","S 450","S 500","S 580","S-Class","SL","SLC","GT 43","GT 53","GT 63","Mazda3","Mazda2","MX-5","Miata","Mazda6","540C","570S","570GT","600LT","620R","720S","750S","765LT","Artura","GT","Senna","P1","Speedtail","Elva","Cooper","Clubman","Classic","Elise","Exige","Evora","Emira","Emeya","Evija","Altima","Sentra","Versa","Maxima","718 Boxster","718 Cayman","911","356","912","930","944","968","928","Panamera","Taycan","Clio","Mégane","Megane","Cobra","GT350","GT500","WRX","BRZ","Impreza","Legacy","Swift","Ciaz","Model 3","Model S","Camry","Corolla","GR86","GR Supra","Prius","Yaris","Avalon","Golf","Jetta","Passat","Polo","Virtus","S60","S90","V60","C40"];
+// ── Detección coche vs camioneta ──────────────────────────────────────────
+// Estrategia: primero descartamos SUVs/pickups/vans explícitas (gana camioneta),
+// luego buscamos señales de coche por palabra. Evita falsos positivos por substring
+// (ej. "Escalade" contiene "ES" pero NO es coche).
+
+// SUVs, pickups y vans comunes — si el modelo contiene alguna, es CAMIONETA.
+const TRUCK_WORDS = ["escalade","suburban","tahoe","yukon","sierra","silverado","colorado","canyon","hummer",
+  "cayenne","macan","urus","bentayga","dbx","purosangue","levante","grecale",
+  "range rover","defender","discovery","velar","evoque","grenadier",
+  "x1","x2","x3","x4","x5","x6","x7","ix","gla","glb","glc","gle","gls","g 500","g 550","g 63","g-class","eqb","eqc","eqe suv","eqs suv",
+  "q2","q3","q4","q5","q7","q8","e-tron","sq5","sq7","sq8","rs q",
+  "rx","nx","gx","lx","ux","qx","mdx","rdx",
+  "explorer","expedition","bronco","escape","edge","maverick","f-150","f-250","ranger","f150","f250",
+  "tahoe","traverse","blazer","trax","trailblazer","equinox","captiva",
+  "cr-v","crv","hr-v","hrv","pilot","passport","ridgeline",
+  "tucson","santa fe","palisade","creta","kona",
+  "rogue","murano","pathfinder","armada","kicks","x-trail","frontier","np300",
+  "rav4","highlander","4runner","sequoia","tacoma","tundra","land cruiser","prado","sienna","hilux",
+  "cx-3","cx-30","cx-5","cx-50","cx-60","cx-90","cx3","cx30","cx5","cx50","cx90",
+  "tiguan","teramont","taos","touareg","atlas","t-roc","amarok","t-cross",
+  "compass","cherokee","wrangler","gladiator","commander","wagoneer","grand cherokee",
+  "telluride","sorento","sportage","seltos","carnival","ev6","stonic","niro",
+  "xc40","xc60","xc90","c40","ex30","ex90",
+  "outback","forester","ascent","crosstrek","outlander","montero","eclipse cross","l200",
+  "model x","model y","cybertruck","r1s","r1t","grand wagoneer",
+  "navigator","aviator","corsair","nautilus","enclave","encore","envision","lyriq","xt4","xt5","xt6","acadia","terrain",
+  "ateca","tarraco","arona","formentor","tavascan","kodiaq","karoq",
+  "atto","tang","song","yuan","seal u","dolphin","shark","grenadier","jimny","vitara","s-cross","bronco",
+  "eletre","dbx","gv70","gv80","g70 shooting","qx50","qx55","qx60","qx80",
+  "i-pace","e-pace","f-pace","ds7","ds3","duster","koleos","kardian","captur","grand vitara",
+  "rx5","hs","zs ev","mg5 wagon","outlander","l200","npr","hiace","transit","sprinter","crafter","express","savana"];
+
+// Señales de COCHE — sedán, coupé, hatch, deportivo, convertible.
+const CAR_WORDS = ["sedan","sedán","coupe","coupé","cabrio","cabriolet","spider","spyder","roadster","convertible","hatch","liftback",
+  "a1","a3","a4","a5","a6","a7","a8","s3","s4","s5","s6","s7","s8","rs3","rs5","rs6","rs7","r8","tt",
+  "218","220","228","230","235","240","320","330","340","430","440","520","530","540","550","730","740","750",
+  "m2","m3","m4","m5","m8","m235","m240","m340","m440","m550","i4","i5","i7","z4","serie",
+  "ct4","ct5","cts","ats",
+  "camaro","corvette","malibu","onix","aveo","spark","cavalier",
+  "attitude","charger","challenger","dart","neon",
+  "california","portofino","roma","296","f8","812","gtc4","sf90","daytona","ff",
+  "500","mustang","model a","fiesta","focus","fusion","gt350","gt500","cobra",
+  "g70","g80","g90","stinger",
+  "accord","civic","city","fit","insight","integra","tlx",
+  "elantra","sonata","accent","ioniq 5","ioniq 6","verna",
+  "q50","q60",
+  "e-type","f-type","xf","xj","xe","i-pace",
+  "diablo","aventador","gallardo","murciélago","murcielago","huracán","huracan","countach","revuelto",
+  "is ","es ","lc ","ls ","rc ","gs ","is3","is2","es3","es2",
+  "ghibli","quattroporte","mc20","granturismo","grancabrio",
+  "190 sl","300 sl","clase a","clase c","clase e","clase s","a 35","a 45","a 200","a 250",
+  "c 200","c 300","c 43","c 63","cla","cle","cls","e 200","e 350","e 450","e 53","e 63",
+  "s 450","s 500","s 580","sl 43","sl 55","sl 63","sl 500","sl 550","slc","amg gt","gt 43","gt 53","gt 63",
+  "mazda2","mazda3","mazda6","mx-5","miata",
+  "540c","570s","570gt","600lt","620r","720s","750s","765lt","artura","senna","speedtail","elva","p1",
+  "cooper","clubman","mini classic",
+  "elise","exige","evora","emira","emeya","evija",
+  "altima","sentra","versa","maxima","leaf",
+  "718","911","356","912","930","944","968","928","panamera","taycan",
+  "clio","mégane","megane","logan","sandero",
+  "wrx","brz","impreza","legacy","wrx sti",
+  "swift","ciaz","baleno",
+  "model 3","model s","fiat 500","sp coupe","healey",
+  "camry","corolla","gr86","gr supra","prius","yaris","avalon","86",
+  "golf","jetta","passat","polo","virtus","vento",
+  "s60","s90","v60","mg5"];
 
 function detectTipo(model){
   if(!model) return null;
-  const m=model.toLowerCase();
-  for(const kw of CAR_KEYWORDS){ if(m.includes(kw.toLowerCase())) return "coche"; }
+  const m=" "+model.toLowerCase()+" ";
+  // 1) Camioneta explícita gana (evita falsos positivos como Escalade→ES)
+  for(const w of TRUCK_WORDS){ if(m.includes(" "+w) || m.includes(w+" ") || m.includes(" "+w+" ")) return "camioneta"; }
+  // 2) Señal de coche
+  for(const w of CAR_WORDS){ if(m.includes(" "+w) || m.includes(w+" ") || m.includes(" "+w+" ")) return "coche"; }
+  // 3) Por defecto, camioneta (la mayoría del catálogo Viking)
   return "camioneta";
 }
 
@@ -191,7 +260,7 @@ function buildItems(o){
   if(o.puertas>0)l.push({code:C.puerta,label:`Kevlar puertas ×${o.puertas}`,price:P.puerta*o.puertas});
   if(o.cajuela)l.push({code:C.cajuela[o.tipo],label:"Kevlar cajuela",price:P.cajuela[o.tipo]});
   const postesList=[o.posteB&&"B",o.posteC&&"C",o.posteD&&"D"].filter(Boolean);
-  if(postesList.length>0)l.push({code:C.poste[o.tipo],label:`Kevlar postes ${postesList.join(", ")}`,price:P.poste[o.tipo]*postesList.length});
+  if(postesList.length>0)l.push({code:C.poste[o.tipo],label:`Kevlar postes ${postesList.join(", ")} (×2 c/u)`,price:P.poste[o.tipo]*postesList.length*2});
   if(o.carga&&o.tipo==="camioneta")l.push({code:C.carga,label:"Kevlar área de carga",price:P.carga});
   if(o.techo)l.push({code:C.techo[o.tipo],label:"Kevlar techo",price:P.techo[o.tipo]});
   return l;
