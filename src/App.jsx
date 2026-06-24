@@ -468,7 +468,7 @@ function PrintView({opts,name,vehicleStr,asesor,folio,onBack}){
             </div>
           );
         })}
-        <div style={{marginTop:24,paddingTop:16,borderTop:"1.5px solid #111",display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
+        <div style={{marginTop:24,paddingTop:16,borderTop:"1.5px solid #111",display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:20}}>
           <div>
             <div style={{fontSize:10,color:"#888",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:5}}>Contacto</div>
             <div style={{fontSize:12,color:"#444",lineHeight:1.7}}>
@@ -478,11 +478,18 @@ function PrintView({opts,name,vehicleStr,asesor,folio,onBack}){
               {VIKING_INFO.web}
             </div>
           </div>
-          <div style={{display:"flex",alignItems:"flex-end"}}>
-            <div style={{opacity:.45}}>
-              <Logo h={26} variant="negro"/>
+          <div style={{flex:"0 0 auto"}}>
+            <div style={{fontSize:10,color:"#888",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:5}}>Datos para depósito</div>
+            <div style={{fontSize:12,color:"#444",lineHeight:1.7}}>
+              <span style={{color:"#888"}}>Banco</span> BBVA Bancomer<br/>
+              <span style={{color:"#888"}}>Beneficiario</span> GAV Detailing SA de CV<br/>
+              <span style={{color:"#888"}}>Cuenta</span> 0110645915<br/>
+              <span style={{color:"#888"}}>CLABE</span> 012180001106459158
             </div>
           </div>
+        </div>
+        <div style={{marginTop:16,display:"flex",justifyContent:"flex-end"}}>
+          <div style={{opacity:.4}}><Logo h={24} variant="negro"/></div>
         </div>
         <div style={{marginTop:16,paddingTop:14,borderTop:"1px solid #e5e5e3",fontSize:11,color:"#bbb",lineHeight:1.6}}>
           Precios en pesos mexicanos antes de IVA (16%). Vigencia 30 días. Garantía 5 años propietario original: cubre delaminación, burbujeo y defectos de instalación. No cubre accidentes, golpes ni vandalismo. No transferible. Viking by GAV no es blindaje balístico certificado.
