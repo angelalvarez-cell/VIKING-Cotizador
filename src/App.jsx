@@ -6,6 +6,8 @@ import { useState, useMemo } from "react";
 // ════════════════════════════════════════════════════════════════════
 
 const IMG = {
+  logo_negro:      "/img/LOGO_VIKING_NEGRO.png",
+  logo_blanco:     "/img/LOGO_VIKING_BLANCO.png",
   base_lateral:    "/img/BASE_LATERAL.png",
   base_frontal:    "/img/BASE_FRONTAL.png",
   base_trasera:    "/img/BASE_TRASERA.png",
@@ -23,6 +25,14 @@ const IMG = {
   ov_cajuela:      "/img/OV_CAJUELA.png",
   ov_carga:        "/img/OV_CARGA.png",
 };
+
+// Logo Viking real. Si la imagen no carga, cae al escudo SVG dibujado.
+function Logo({h=40,variant="negro"}){
+  const [failed,setFailed]=useState(false);
+  const src = variant==="blanco"?IMG.logo_blanco:IMG.logo_negro;
+  if(failed) return <Shield size={h*0.9} color={variant==="blanco"?"#fff":"#0a0a0a"}/>;
+  return <img src={src} alt="Viking by GAV" onError={()=>setFailed(true)} style={{height:h,width:"auto",objectFit:"contain"}}/>;
+}
 
 const BRANDS = {
   "Acura":["MDX Base","MDX A-Spec","RDX","TLX","Integra"],
@@ -367,7 +377,7 @@ function PrintView({opts,name,vehicleStr,asesor,folio,onBack}){
       </div>
       <div style={{background:"#fff",color:"#111",maxWidth:580}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:22,paddingBottom:18,borderBottom:"1.5px solid #111"}}>
-          <div style={{display:"flex",alignItems:"center",gap:10}}><Shield size={36} color="#111"/><div><div style={{fontSize:22,fontWeight:500,letterSpacing:"0.18em",lineHeight:1}}>VIKING</div><div style={{fontSize:11,color:"#666",letterSpacing:"0.06em"}}>BY GAV</div></div></div>
+          <Logo h={46} variant="negro"/>
           <div style={{textAlign:"right"}}><div style={{fontSize:20,fontWeight:500}}>Cotización</div><div style={{fontSize:12,color:"#888",marginTop:3}}>{today}</div><div style={{fontSize:12,color:"#aaa",marginTop:2,fontFamily:"monospace"}}>{folio}</div></div>
         </div>
         <div style={{marginBottom:24,padding:"14px 16px",background:"#f7f7f5",borderRadius:10,display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px 24px"}}>
@@ -423,9 +433,8 @@ function PrintView({opts,name,vehicleStr,asesor,folio,onBack}){
             </div>
           </div>
           <div style={{display:"flex",alignItems:"flex-end"}}>
-            <div style={{display:"flex",alignItems:"center",gap:8,opacity:.5}}>
-              <Shield size={22} color="#111"/>
-              <span style={{fontSize:13,fontWeight:500,letterSpacing:"0.15em"}}>VIKING</span>
+            <div style={{opacity:.45}}>
+              <Logo h={26} variant="negro"/>
             </div>
           </div>
         </div>
@@ -474,7 +483,8 @@ export default function App(){
     <div style={{fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",maxWidth:600,margin:"0 auto",padding:"0 1rem 6rem",position:"relative"}}>
       <div style={{padding:"2rem 0 0"}}>
         <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:"2.5rem"}}>
-          <Shield size={36} color={INK}/><div><div style={{fontSize:21,fontWeight:500,letterSpacing:"0.18em",color:INK,lineHeight:1}}>VIKING</div><div style={{fontSize:11,color:MUTED,letterSpacing:"0.06em"}}>BY GAV · {today}</div></div>
+          <Logo h={44} variant="negro"/>
+          <div style={{fontSize:11,color:MUTED,letterSpacing:"0.06em",borderLeft:`1px solid ${SEP}`,paddingLeft:12}}>{today}</div>
         </div>
 
         <div style={{marginBottom:"2.5rem"}}>
