@@ -170,6 +170,25 @@ const C={
 };
 const mxn=n=>"$"+Math.round(n).toLocaleString("es-MX");
 const today=new Date().toLocaleDateString("es-MX",{day:"numeric",month:"long",year:"numeric"});
+
+// Datos de contacto de Viking (editar con los reales)
+const VIKING_INFO = {
+  tel: "55 0000 0000",
+  correo: "contacto@gav.mx",
+  direccion: "Dirección del taller, Ciudad",
+  web: "gav.mx · @viking.gav",
+};
+
+// Folio único basado en fecha + aleatorio (ej. VK-260623-4821)
+function makeFolio(){
+  const d=new Date();
+  const yy=String(d.getFullYear()).slice(2);
+  const mm=String(d.getMonth()+1).padStart(2,"0");
+  const dd=String(d.getDate()).padStart(2,"0");
+  const rnd=Math.floor(1000+Math.random()*9000);
+  return `VK-${yy}${mm}${dd}-${rnd}`;
+}
+
 const INK="#0a0a0a"; const MUTED="#86868b"; const SEP="rgba(0,0,0,0.07)";
 const OPT_NAMES=["Opción A","Opción B","Opción C"];
 const blankOpt=()=>({tipo:"camioneta",lat:null,latT:"p",med:false,medT:"p",para:false,puertas:0,cajuela:false,posteB:false,posteC:false,posteD:false,carga:false,techo:false});
@@ -336,7 +355,7 @@ function OptionEditor({o,set}){
   );
 }
 
-function PrintView({opts,name,vehicleStr,onBack}){
+function PrintView({opts,name,vehicleStr,asesor,folio,onBack}){
   const active=opts.filter(o=>buildItems(o).length>0);
   const multi=active.length>1;
   return(
@@ -349,10 +368,10 @@ function PrintView({opts,name,vehicleStr,onBack}){
       <div style={{background:"#fff",color:"#111",maxWidth:580}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:22,paddingBottom:18,borderBottom:"1.5px solid #111"}}>
           <div style={{display:"flex",alignItems:"center",gap:10}}><Shield size={36} color="#111"/><div><div style={{fontSize:22,fontWeight:500,letterSpacing:"0.18em",lineHeight:1}}>VIKING</div><div style={{fontSize:11,color:"#666",letterSpacing:"0.06em"}}>BY GAV</div></div></div>
-          <div style={{textAlign:"right"}}><div style={{fontSize:20,fontWeight:500}}>Cotización</div><div style={{fontSize:12,color:"#888",marginTop:3}}>{today}</div></div>
+          <div style={{textAlign:"right"}}><div style={{fontSize:20,fontWeight:500}}>Cotización</div><div style={{fontSize:12,color:"#888",marginTop:3}}>{today}</div><div style={{fontSize:12,color:"#aaa",marginTop:2,fontFamily:"monospace"}}>{folio}</div></div>
         </div>
         <div style={{marginBottom:24,padding:"14px 16px",background:"#f7f7f5",borderRadius:10,display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px 24px"}}>
-          {[["Cliente",name||"—"],["Vehículo",vehicleStr||"—"],["Fecha",today],["Vigencia","30 días"]].map(([l,v])=>(
+          {[["Cliente",name||"—"],["Vehículo",vehicleStr||"—"],["Asesor",asesor||"—"],["Vigencia","30 días"]].map(([l,v])=>(
             <div key={l}><div style={{fontSize:10,color:"#888",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:3}}>{l}</div><div style={{fontSize:14,fontWeight:500}}>{v}</div></div>
           ))}
         </div>
@@ -393,7 +412,24 @@ function PrintView({opts,name,vehicleStr,onBack}){
             </div>
           );
         })}
-        <div style={{marginTop:20,paddingTop:14,borderTop:"1px solid #e5e5e3",fontSize:11,color:"#bbb",lineHeight:1.6}}>
+        <div style={{marginTop:24,paddingTop:16,borderTop:"1.5px solid #111",display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
+          <div>
+            <div style={{fontSize:10,color:"#888",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:5}}>Contacto</div>
+            <div style={{fontSize:12,color:"#444",lineHeight:1.7}}>
+              {VIKING_INFO.tel}<br/>
+              {VIKING_INFO.correo}<br/>
+              {VIKING_INFO.direccion}<br/>
+              {VIKING_INFO.web}
+            </div>
+          </div>
+          <div style={{display:"flex",alignItems:"flex-end"}}>
+            <div style={{display:"flex",alignItems:"center",gap:8,opacity:.5}}>
+              <Shield size={22} color="#111"/>
+              <span style={{fontSize:13,fontWeight:500,letterSpacing:"0.15em"}}>VIKING</span>
+            </div>
+          </div>
+        </div>
+        <div style={{marginTop:16,paddingTop:14,borderTop:"1px solid #e5e5e3",fontSize:11,color:"#bbb",lineHeight:1.6}}>
           Precios en pesos mexicanos antes de IVA (16%). Vigencia 30 días. Garantía 5 años propietario original: cubre delaminación, burbujeo y defectos de instalación. No cubre accidentes, golpes ni vandalismo. No transferible. Viking by GAV no es blindaje balístico certificado.
         </div>
       </div>
@@ -404,6 +440,8 @@ function PrintView({opts,name,vehicleStr,onBack}){
 export default function App(){
   const [view,setView]=useState("config");
   const [name,setName]=useState(""); const [brand,setBrand]=useState(""); const [model,setModel]=useState(""); const [year,setYear]=useState("");
+  const [asesor,setAsesor]=useState("");
+  const [folio]=useState(makeFolio);
   const [opts,setOpts]=useState([blankOpt()]);
   const [active,setActive]=useState(0);
 
@@ -430,7 +468,7 @@ export default function App(){
     setActive(a=>Math.max(0,a>=i?a-1:a));
   }
 
-  if(view==="preview") return <div style={{fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",maxWidth:600,margin:"0 auto",padding:"2rem 1rem"}}><PrintView opts={opts} name={name} vehicleStr={vehicleStr} onBack={()=>setView("config")}/></div>;
+  if(view==="preview") return <div style={{fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",maxWidth:600,margin:"0 auto",padding:"2rem 1rem"}}><PrintView opts={opts} name={name} vehicleStr={vehicleStr} asesor={asesor} folio={folio} onBack={()=>setView("config")}/></div>;
 
   return(
     <div style={{fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",maxWidth:600,margin:"0 auto",padding:"0 1rem 6rem",position:"relative"}}>
@@ -445,6 +483,7 @@ export default function App(){
           <Row label="Marca" right={<Sel value={brand} onChange={v=>{setBrand(v);setModel("");}} w={165}><option value="">Seleccionar</option>{Object.keys(BRANDS).sort().map(b=><option key={b} value={b}>{b}</option>)}</Sel>}/>
           <Row label="Modelo" right={<Sel value={model} onChange={chooseModel} disabled={!brand} w={165}><option value="">Seleccionar</option>{models.map(m=><option key={m} value={m}>{m}</option>)}</Sel>}/>
           <Row label="Año" right={<Sel value={year} onChange={setYear} w={110}><option value="">Año</option>{YEARS.map(y=><option key={y} value={y}>{y}</option>)}</Sel>}/>
+          <Row label="Asesor" right={<input type="text" value={asesor} onChange={e=>setAsesor(e.target.value)} placeholder="Nombre del asesor" style={{padding:"9px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:200}}/>}/>
         </div>
 
         {multi&&(
