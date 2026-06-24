@@ -489,13 +489,9 @@ export default function App(){
         </div>
 
         <div style={{marginBottom:"1.5rem"}}>
-          <SHead>Atendido por</SHead>
-          <Row first label="Viking" right={<Sel value={asesor} onChange={setAsesor} w={200}><option value="">Seleccionar</option>{ATIENDE.map(a=><option key={a} value={a}>{a}</option>)}</Sel>}/>
-        </div>
-
-        <div style={{marginBottom:"1.5rem"}}>
           <SHead>Cliente</SHead>
-          <Row first label="Nombre" right={<input type="text" value={name} onChange={e=>setName(e.target.value)} placeholder="Nombre completo" style={{padding:"9px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:200}}/>}/>
+          <Row first label="Atendido por" right={<Sel value={asesor} onChange={setAsesor} w={200}><option value="">Seleccionar</option>{ATIENDE.map(a=><option key={a} value={a}>{a}</option>)}</Sel>}/>
+          <Row label="Nombre del cliente" right={<input type="text" value={name} onChange={e=>setName(e.target.value)} placeholder="Nombre completo" style={{padding:"9px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:200}}/>}/>
           <Row label="Marca" right={<Sel value={brand} onChange={v=>{setBrand(v);setModel("");}} w={165}><option value="">Seleccionar</option>{Object.keys(BRANDS).sort().map(b=><option key={b} value={b}>{b}</option>)}</Sel>}/>
           <Row label="Modelo" right={<Sel value={model} onChange={chooseModel} disabled={!brand} w={165}><option value="">Seleccionar</option>{models.map(m=><option key={m} value={m}>{m}</option>)}</Sel>}/>
           <Row label="Año" right={<Sel value={year} onChange={setYear} w={110}><option value="">Año</option>{YEARS.map(y=><option key={y} value={y}>{y}</option>)}</Sel>}/>
