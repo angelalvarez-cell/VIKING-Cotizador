@@ -509,14 +509,32 @@ export default function App(){
       </div>
 
       {anyFilled&&(
-        <div style={{position:"sticky",bottom:0,marginTop:"2rem",background:"rgba(255,255,255,0.82)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",borderTop:`1px solid ${SEP}`,padding:"1rem 0",display:"flex",alignItems:"center",justifyContent:"space-between",gap:16}}>
-          <div>
-            <div style={{fontSize:11,color:MUTED,textTransform:"uppercase",letterSpacing:"0.08em"}}>{multi?`${OPT_NAMES[active]} · total c/IVA`:"Total con IVA"}</div>
-            <div style={{fontSize:26,fontWeight:500,color:INK,letterSpacing:"-0.5px",lineHeight:1.15}}>{mxn(curTotal.total)}</div>
+        <div style={{position:"sticky",bottom:0,marginTop:"2rem",background:"rgba(255,255,255,0.85)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",borderTop:`1px solid ${SEP}`,paddingTop:"0.85rem",paddingBottom:"0.85rem"}}>
+          {curTotal.items.length>0 && (
+            <div style={{marginBottom:10}}>
+              {curTotal.items.map((it,i)=>(
+                <div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:12.5,color:"#555",padding:"2px 0",gap:10}}>
+                  <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{it.label}</span>
+                  <span style={{whiteSpace:"nowrap"}}>{mxn(it.price)}</span>
+                </div>
+              ))}
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:12.5,color:MUTED,padding:"4px 0 2px",borderTop:`1px solid ${SEP}`,marginTop:4}}>
+                <span>Subtotal (sin IVA)</span><span>{mxn(curTotal.sub)}</span>
+              </div>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:12.5,color:MUTED,padding:"2px 0"}}>
+                <span>IVA 16%</span><span>{mxn(curTotal.iva)}</span>
+              </div>
+            </div>
+          )}
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:16}}>
+            <div>
+              <div style={{fontSize:11,color:MUTED,textTransform:"uppercase",letterSpacing:"0.08em"}}>{multi?`${OPT_NAMES[active]} · total c/IVA`:"Total con IVA"}</div>
+              <div style={{fontSize:26,fontWeight:500,color:INK,letterSpacing:"-0.5px",lineHeight:1.15}}>{mxn(curTotal.total)}</div>
+            </div>
+            <button onClick={()=>setView("preview")} style={{padding:"13px 26px",borderRadius:100,border:"none",background:INK,color:"#fff",fontSize:15,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
+              Ver cotización →
+            </button>
           </div>
-          <button onClick={()=>setView("preview")} style={{padding:"13px 26px",borderRadius:100,border:"none",background:INK,color:"#fff",fontSize:15,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
-            Ver cotización →
-          </button>
         </div>
       )}
     </div>
