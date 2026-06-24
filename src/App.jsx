@@ -484,7 +484,12 @@ export default function App(){
       <div style={{padding:"2rem 0 0"}}>
         <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:"2.5rem"}}>
           <Logo h={88} variant="negro"/>
-          <div style={{fontSize:11,color:MUTED,letterSpacing:"0.06em",borderLeft:`1px solid ${SEP}`,paddingLeft:12}}>{today}</div>
+          <div style={{fontSize:11,color:MUTED,letterSpacing:"0.06em",marginLeft:-4}}>{today}</div>
+        </div>
+
+        <div style={{marginBottom:"2.5rem"}}>
+          <SHead>Atendido por</SHead>
+          <Row first label="Nombre" sub="Quien atiende la cotización (asesor, socio, etc.)" right={<input type="text" value={asesor} onChange={e=>setAsesor(e.target.value)} placeholder="Nombre" style={{padding:"9px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:200}}/>}/>
         </div>
 
         <div style={{marginBottom:"2.5rem"}}>
@@ -493,11 +498,6 @@ export default function App(){
           <Row label="Marca" right={<Sel value={brand} onChange={v=>{setBrand(v);setModel("");}} w={165}><option value="">Seleccionar</option>{Object.keys(BRANDS).sort().map(b=><option key={b} value={b}>{b}</option>)}</Sel>}/>
           <Row label="Modelo" right={<Sel value={model} onChange={chooseModel} disabled={!brand} w={165}><option value="">Seleccionar</option>{models.map(m=><option key={m} value={m}>{m}</option>)}</Sel>}/>
           <Row label="Año" right={<Sel value={year} onChange={setYear} w={110}><option value="">Año</option>{YEARS.map(y=><option key={y} value={y}>{y}</option>)}</Sel>}/>
-        </div>
-
-        <div style={{marginBottom:"2.5rem"}}>
-          <SHead>Atendido por</SHead>
-          <Row first label="Nombre Viking" sub="Quien atiende la cotización (asesor, socio, etc.)" right={<input type="text" value={asesor} onChange={e=>setAsesor(e.target.value)} placeholder="Nombre" style={{padding:"9px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:200}}/>}/>
         </div>
 
         {multi&&(
