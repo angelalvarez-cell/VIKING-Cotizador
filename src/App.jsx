@@ -103,7 +103,7 @@ const mxn=n=>"$"+Math.round(n).toLocaleString("es-MX");
 const today=new Date().toLocaleDateString("es-MX",{day:"numeric",month:"long",year:"numeric"});
 const INK="#0a0a0a"; const MUTED="#86868b"; const SEP="rgba(0,0,0,0.07)";
 const OPT_NAMES=["Opción A","Opción B","Opción C"];
-const blankOpt=()=>({tipo:"camioneta",lat:null,latT:"p",med:false,medT:"p",para:false,puertas:0,cajuela:false,postes:0,carga:false,techo:false});
+const blankOpt=()=>({tipo:"camioneta",lat:null,latT:"p",med:false,medT:"p",para:false,puertas:0,cajuela:false,posteB:false,posteC:false,posteD:false,carga:false,techo:false});
 
 function Shield({size=34,color="currentColor"}){
   return(
@@ -122,8 +122,21 @@ function pickView(o){
   return "lateral";
 }
 
+function viewsWithContent(o){
+  const v=[];
+  const anyPoste=o.posteB||o.posteC||o.posteD;
+  if(o.lat||o.puertas>0||anyPoste||o.carga||o.techo) v.push("lateral");
+  if(o.para) v.push("frontal");
+  if(o.med||o.cajuela) v.push("trasera");
+  return v;
+}
+const VIEW_LABEL={lateral:"Lateral",frontal:"Frente",trasera:"Atrás"};
+
 function CarStage({o}){
-  const view=pickView(o);
+  const available=viewsWithContent(o);
+  const [manual,setManual]=useState(null);
+  const view = (manual && available.includes(manual)) ? manual : (available[0] || "lateral");
+
   const base = view==="frontal"?IMG.base_frontal : view==="trasera"?IMG.base_trasera : IMG.base_lateral;
   const layers=[];
   if(view==="lateral"){
@@ -131,10 +144,10 @@ function CarStage({o}){
     if(o.lat>=4) layers.push(IMG.ov_ventana_tra);
     if(o.lat>=6) layers.push(IMG.ov_ventana_fija);
     if(o.puertas>=1) layers.push(IMG.ov_puerta_del);
-    if(o.puertas>=2) layers.push(IMG.ov_puerta_tra);
-    if(o.postes>=1) layers.push(IMG.ov_poste_B);
-    if(o.postes>=2) layers.push(IMG.ov_poste_C);
-    if(o.postes>=3) layers.push(IMG.ov_poste_D);
+    if(o.puertas>=3) layers.push(IMG.ov_puerta_tra);
+    if(o.posteB) layers.push(IMG.ov_poste_B);
+    if(o.posteC) layers.push(IMG.ov_poste_C);
+    if(o.posteD) layers.push(IMG.ov_poste_D);
     if(o.techo) layers.push(IMG.ov_techo);
     if(o.carga) layers.push(IMG.ov_carga);
   } else if(view==="frontal"){
@@ -143,16 +156,29 @@ function CarStage({o}){
     if(o.med) layers.push(IMG.ov_medallon);
     if(o.cajuela) layers.push(IMG.ov_cajuela);
   }
-  // Las imágenes tienen mucho espacio transparente; el carro está centrado-arriba.
-  // Acercamos la "cámara" con scale + anclaje superior para llenar el cuadro.
-  const layerStyle={position:"absolute",inset:0,width:"100%",height:"100%",
-    objectFit:"contain",objectPosition:"center 12%",transform:"scale(2.9)",transformOrigin:"center 12%"};
+
+  const layerStyle={position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain"};
+
   return(
-    <div style={{borderRadius:18,background:"linear-gradient(160deg,#fbfbfd,#f2f2f4)",marginBottom:"2rem",padding:"0.5rem",overflow:"hidden"}}>
-      <div style={{position:"relative",width:"100%",aspectRatio:"16 / 10",maxHeight:300,margin:"0 auto",overflow:"hidden"}}>
+    <div style={{borderRadius:18,background:"linear-gradient(160deg,#fbfbfd,#f2f2f4)",marginBottom:"2rem",padding:"0.75rem"}}>
+      <div style={{position:"relative",width:"100%",aspectRatio:"16 / 10",maxHeight:300,margin:"0 auto"}}>
         <img src={base} alt="" style={{...layerStyle,zIndex:1}}/>
         {layers.map((s,i)=><img key={s} src={s} alt="" style={{...layerStyle,zIndex:10+i}}/>)}
       </div>
+      {available.length>1 && (
+        <div style={{display:"flex",gap:6,justifyContent:"center",marginTop:10}}>
+          {available.map(v=>{
+            const on=view===v;
+            return(
+              <button key={v} onClick={()=>setManual(v)} style={{
+                padding:"5px 16px",borderRadius:100,fontSize:13,cursor:"pointer",fontFamily:"inherit",
+                background:on?INK:"transparent",color:on?"#fff":MUTED,
+                border:`1.5px solid ${on?INK:"#d2d2d7"}`,
+              }}>{VIEW_LABEL[v]}</button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -164,7 +190,8 @@ function buildItems(o){
   if(o.para)l.push({code:C.para,label:"Viking · Parabrisas",price:P.para});
   if(o.puertas>0)l.push({code:C.puerta,label:`Kevlar puertas ×${o.puertas}`,price:P.puerta*o.puertas});
   if(o.cajuela)l.push({code:C.cajuela[o.tipo],label:"Kevlar cajuela",price:P.cajuela[o.tipo]});
-  if(o.postes>0)l.push({code:C.poste[o.tipo],label:`Kevlar postes ×${o.postes}`,price:P.poste[o.tipo]*o.postes});
+  const postesList=[o.posteB&&"B",o.posteC&&"C",o.posteD&&"D"].filter(Boolean);
+  if(postesList.length>0)l.push({code:C.poste[o.tipo],label:`Kevlar postes ${postesList.join(", ")}`,price:P.poste[o.tipo]*postesList.length});
   if(o.carga&&o.tipo==="camioneta")l.push({code:C.carga,label:"Kevlar área de carga",price:P.carga});
   if(o.techo)l.push({code:C.techo[o.tipo],label:"Kevlar techo",price:P.techo[o.tipo]});
   return l;
@@ -226,7 +253,13 @@ function OptionEditor({o,set}){
         <SHead>Kevlar 9 capas</SHead>
         <Row first label="Puertas" sub={`${mxn(P.puerta)} por puerta`} right={<Counter value={o.puertas} onChange={v=>u("puertas",v)} max={4}/>}/>
         <Row label="Cajuela" sub={mxn(P.cajuela[o.tipo])} right={<Toggle active={o.cajuela} onToggle={()=>u("cajuela",!o.cajuela)}/>}/>
-        <Row label="Postes B, C y D" sub={`${mxn(P.poste[o.tipo])} por poste`} right={<Counter value={o.postes} onChange={v=>u("postes",v)} max={3}/>}/>
+        <Row label="Postes" sub={`${mxn(P.poste[o.tipo])} por poste`} right={
+          <div style={{display:"flex",gap:6}}>
+            <Pill sm active={o.posteB} onClick={()=>u("posteB",!o.posteB)}>B</Pill>
+            <Pill sm active={o.posteC} onClick={()=>u("posteC",!o.posteC)}>C</Pill>
+            <Pill sm active={o.posteD} onClick={()=>u("posteD",!o.posteD)}>D</Pill>
+          </div>
+        }/>
         {o.tipo==="camioneta"&&<Row label="Área de carga" sub={`${mxn(P.carga)} · ambos lados`} right={<Toggle active={o.carga} onToggle={()=>u("carga",!o.carga)}/>}/>}
         <Row label="Techo" sub={mxn(P.techo[o.tipo])} right={<Toggle active={o.techo} onToggle={()=>u("techo",!o.techo)}/>}/>
       </div>
