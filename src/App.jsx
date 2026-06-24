@@ -297,6 +297,50 @@ function buildItems(o){
 }
 function totals(o){const items=buildItems(o);const sub=items.reduce((s,i)=>s+i.price,0);const iva=Math.round(sub*.16);return{items,sub,iva,total:sub+iva};}
 
+// Devuelve las capas (base + overlays) de una vista específica para una opción
+function viewLayers(o,view){
+  const base = view==="frontal"?IMG.base_frontal : view==="trasera"?IMG.base_trasera : IMG.base_lateral;
+  const layers=[];
+  if(view==="lateral"){
+    if(o.lat>=2) layers.push(IMG.ov_ventana_del);
+    if(o.lat>=4) layers.push(IMG.ov_ventana_tra);
+    if(o.lat>=6) layers.push(IMG.ov_ventana_fija);
+    if(o.puertas>=1) layers.push(IMG.ov_puerta_del);
+    if(o.puertas>=3) layers.push(IMG.ov_puerta_tra);
+    if(o.posteB) layers.push(IMG.ov_poste_B);
+    if(o.posteC) layers.push(IMG.ov_poste_C);
+    if(o.posteD) layers.push(IMG.ov_poste_D);
+    if(o.techo) layers.push(IMG.ov_techo);
+    if(o.carga) layers.push(IMG.ov_carga);
+  } else if(view==="frontal"){
+    if(o.para) layers.push(IMG.ov_parabrisas);
+  } else if(view==="trasera"){
+    if(o.med) layers.push(IMG.ov_medallon);
+    if(o.cajuela) layers.push(IMG.ov_cajuela);
+  }
+  return {base,layers};
+}
+
+// Ilustración para el PDF: todas las vistas con contenido, en fila
+function QuoteIllustration({o}){
+  const views=viewsWithContent(o);
+  if(views.length===0) return null;
+  return(
+    <div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap",marginTop:14,padding:"10px 0"}}>
+      {views.map(v=>{
+        const {base,layers}=viewLayers(o,v);
+        const w = v==="lateral" ? 230 : 150;
+        return(
+          <div key={v} style={{position:"relative",width:w,aspectRatio:"16 / 10"}}>
+            <img src={base} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain"}}/>
+            {layers.map((s,i)=><img key={s} src={s} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain"}}/>)}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function Pill({active,onClick,children,sm}){
   return <button onClick={onClick} style={{padding:sm?"6px 14px":"8px 18px",borderRadius:100,fontSize:sm?13:14,cursor:"pointer",fontFamily:"inherit",background:active?INK:"transparent",color:active?"#fff":"#555",border:`1.5px solid ${active?INK:"#ccc"}`,whiteSpace:"nowrap"}}>{children}</button>;
 }
@@ -420,6 +464,7 @@ function PrintView({opts,name,vehicleStr,asesor,folio,onBack}){
                   </div>
                 </div>
               </div>
+              <QuoteIllustration o={o}/>
             </div>
           );
         })}
