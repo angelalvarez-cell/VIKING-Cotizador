@@ -201,6 +201,7 @@ function makeFolio(){
 
 const INK="#0a0a0a"; const MUTED="#86868b"; const SEP="rgba(0,0,0,0.07)";
 const OPT_NAMES=["Opción A","Opción B","Opción C"];
+const ATIENDE = ["Ángel Álvarez","Carlos García","Javier Fernández","Jesús Landeros"];
 const blankOpt=()=>({tipo:"camioneta",lat:null,latT:"p",med:false,medT:"p",para:false,puertas:0,cajuela:false,posteB:false,posteC:false,posteD:false,carga:false,techo:false});
 
 function Shield({size=34,color="currentColor"}){
@@ -482,17 +483,17 @@ export default function App(){
   return(
     <div style={{fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",maxWidth:600,margin:"0 auto",padding:"0 1rem 6rem",position:"relative"}}>
       <div style={{padding:"2rem 0 0"}}>
-        <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:"2.5rem"}}>
+        <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:"1.75rem"}}>
           <Logo h={88} variant="negro"/>
-          <div style={{fontSize:11,color:MUTED,letterSpacing:"0.06em",marginLeft:-4}}>{today}</div>
+          <div style={{fontSize:11,color:MUTED,letterSpacing:"0.06em",borderLeft:`1px solid ${SEP}`,paddingLeft:12}}>{today}</div>
         </div>
 
-        <div style={{marginBottom:"2.5rem"}}>
+        <div style={{marginBottom:"1.5rem"}}>
           <SHead>Atendido por</SHead>
-          <Row first label="Nombre" sub="Quien atiende la cotización (asesor, socio, etc.)" right={<input type="text" value={asesor} onChange={e=>setAsesor(e.target.value)} placeholder="Nombre" style={{padding:"9px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:200}}/>}/>
+          <Row first label="Viking" right={<Sel value={asesor} onChange={setAsesor} w={200}><option value="">Seleccionar</option>{ATIENDE.map(a=><option key={a} value={a}>{a}</option>)}</Sel>}/>
         </div>
 
-        <div style={{marginBottom:"2.5rem"}}>
+        <div style={{marginBottom:"1.5rem"}}>
           <SHead>Cliente</SHead>
           <Row first label="Nombre" right={<input type="text" value={name} onChange={e=>setName(e.target.value)} placeholder="Nombre completo" style={{padding:"9px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:200}}/>}/>
           <Row label="Marca" right={<Sel value={brand} onChange={v=>{setBrand(v);setModel("");}} w={165}><option value="">Seleccionar</option>{Object.keys(BRANDS).sort().map(b=><option key={b} value={b}>{b}</option>)}</Sel>}/>
