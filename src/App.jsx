@@ -377,11 +377,11 @@ function PrintView({opts,name,vehicleStr,asesor,folio,onBack}){
       </div>
       <div style={{background:"#fff",color:"#111",maxWidth:580}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:22,paddingBottom:18,borderBottom:"1.5px solid #111"}}>
-          <Logo h={46} variant="negro"/>
+          <Logo h={92} variant="negro"/>
           <div style={{textAlign:"right"}}><div style={{fontSize:20,fontWeight:500}}>Cotización</div><div style={{fontSize:12,color:"#888",marginTop:3}}>{today}</div><div style={{fontSize:12,color:"#aaa",marginTop:2,fontFamily:"monospace"}}>{folio}</div></div>
         </div>
         <div style={{marginBottom:24,padding:"14px 16px",background:"#f7f7f5",borderRadius:10,display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px 24px"}}>
-          {[["Cliente",name||"—"],["Vehículo",vehicleStr||"—"],["Asesor",asesor||"—"],["Vigencia","30 días"]].map(([l,v])=>(
+          {[["Cliente",name||"—"],["Vehículo",vehicleStr||"—"],["Atendido por",asesor||"—"],["Vigencia","30 días"]].map(([l,v])=>(
             <div key={l}><div style={{fontSize:10,color:"#888",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:3}}>{l}</div><div style={{fontSize:14,fontWeight:500}}>{v}</div></div>
           ))}
         </div>
@@ -483,7 +483,7 @@ export default function App(){
     <div style={{fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",maxWidth:600,margin:"0 auto",padding:"0 1rem 6rem",position:"relative"}}>
       <div style={{padding:"2rem 0 0"}}>
         <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:"2.5rem"}}>
-          <Logo h={44} variant="negro"/>
+          <Logo h={88} variant="negro"/>
           <div style={{fontSize:11,color:MUTED,letterSpacing:"0.06em",borderLeft:`1px solid ${SEP}`,paddingLeft:12}}>{today}</div>
         </div>
 
@@ -493,7 +493,11 @@ export default function App(){
           <Row label="Marca" right={<Sel value={brand} onChange={v=>{setBrand(v);setModel("");}} w={165}><option value="">Seleccionar</option>{Object.keys(BRANDS).sort().map(b=><option key={b} value={b}>{b}</option>)}</Sel>}/>
           <Row label="Modelo" right={<Sel value={model} onChange={chooseModel} disabled={!brand} w={165}><option value="">Seleccionar</option>{models.map(m=><option key={m} value={m}>{m}</option>)}</Sel>}/>
           <Row label="Año" right={<Sel value={year} onChange={setYear} w={110}><option value="">Año</option>{YEARS.map(y=><option key={y} value={y}>{y}</option>)}</Sel>}/>
-          <Row label="Asesor" right={<input type="text" value={asesor} onChange={e=>setAsesor(e.target.value)} placeholder="Nombre del asesor" style={{padding:"9px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:200}}/>}/>
+        </div>
+
+        <div style={{marginBottom:"2.5rem"}}>
+          <SHead>Atendido por</SHead>
+          <Row first label="Nombre Viking" sub="Quien atiende la cotización (asesor, socio, etc.)" right={<input type="text" value={asesor} onChange={e=>setAsesor(e.target.value)} placeholder="Nombre" style={{padding:"9px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:200}}/>}/>
         </div>
 
         {multi&&(
