@@ -431,7 +431,10 @@ function PrintView({opts,name,vehicleStr,asesor,folio,onBack}){
   const [saved,setSaved]=useState(false);
   const [saveErr,setSaveErr]=useState("");
 
+  // Guarda en el historial (se llama solo al imprimir). No reintenta si ya se guardó.
   async function guardar(){
+    if(saved || saving) return;
+    if(!SHEETS_URL || SHEETS_URL.startsWith("PEGAR")) return; // sin URL configurada, no intenta
     setSaving(true); setSaveErr("");
     try{
       // Arma resumen de zonas y montos de todas las opciones
@@ -452,16 +455,21 @@ function PrintView({opts,name,vehicleStr,asesor,folio,onBack}){
     setSaving(false);
   }
 
+  // Al imprimir: guarda automáticamente en segundo plano y abre el diálogo de impresión.
+  function imprimirYGuardar(){
+    guardar();        // se dispara solo, no bloquea la impresión
+    window.print();
+  }
+
   return(
     <div>
       <style>{`@media print{.np{display:none!important}.opt-sec{break-inside:avoid}}`}</style>
       <div className="np" style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.5rem",paddingBottom:"1rem",borderBottom:`1px solid ${SEP}`,gap:10}}>
         <button onClick={onBack} style={{background:"none",border:"none",fontSize:15,color:MUTED,cursor:"pointer",fontFamily:"inherit",padding:0}}>← Editar</button>
         <div style={{display:"flex",gap:10,alignItems:"center"}}>
-          {saved
-            ? <span style={{fontSize:14,color:"#4d7c0f",fontWeight:500}}>✓ Guardada</span>
-            : <button onClick={guardar} disabled={saving} style={{padding:"10px 20px",borderRadius:100,background:"transparent",color:INK,border:`1.5px solid ${INK}`,fontSize:14,cursor:saving?"default":"pointer",fontFamily:"inherit",opacity:saving?.5:1}}>{saving?"Guardando…":"Guardar en historial"}</button>}
-          <button onClick={()=>window.print()} style={{padding:"10px 24px",borderRadius:100,background:INK,color:"#fff",border:"none",fontSize:14,cursor:"pointer",fontFamily:"inherit"}}>Imprimir / Guardar PDF</button>
+          {saving && <span style={{fontSize:13,color:MUTED}}>Guardando…</span>}
+          {saved && <span style={{fontSize:14,color:"#4d7c0f",fontWeight:500}}>✓ Guardada</span>}
+          <button onClick={imprimirYGuardar} style={{padding:"10px 24px",borderRadius:100,background:INK,color:"#fff",border:"none",fontSize:14,cursor:"pointer",fontFamily:"inherit"}}>Imprimir / Guardar PDF</button>
         </div>
       </div>
       {saveErr && <div className="np" style={{fontSize:12,color:"#b91c1c",marginBottom:"1rem",textAlign:"right"}}>No se pudo guardar: {saveErr}</div>}
