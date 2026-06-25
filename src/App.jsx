@@ -424,7 +424,7 @@ function OptionEditor({o,set}){
   );
 }
 
-function PrintView({opts,name,vehicleStr,asesor,folio,onBack}){
+function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
   const active=opts.filter(o=>buildItems(o).length>0);
   const multi=active.length>1;
   const [saving,setSaving]=useState(false);
@@ -446,7 +446,7 @@ function PrintView({opts,name,vehicleStr,asesor,folio,onBack}){
       const subGral = active.reduce((s,o)=>s+totals(o).sub,0);
       await guardarEnSheets({
         fecha: new Date().toLocaleString("es-MX"),
-        folio, atendio: asesor||"", cliente: name||"", vehiculo: vehicleStr||"",
+        folio, atendio: asesor||"", cliente: name||"", telefono: tel||"", vehiculo: vehicleStr||"",
         tipo: active[0]?.tipo||"", opciones: active.length,
         zonas: zonasTxt, subtotal: subGral, total: totalGral, estado:"Pendiente",
       });
@@ -479,7 +479,7 @@ function PrintView({opts,name,vehicleStr,asesor,folio,onBack}){
           <div style={{textAlign:"right"}}><div style={{fontSize:20,fontWeight:500}}>Cotización</div><div style={{fontSize:12,color:"#888",marginTop:3}}>{today}</div><div style={{fontSize:12,color:"#aaa",marginTop:2,fontFamily:"monospace"}}>{folio}</div></div>
         </div>
         <div style={{marginBottom:24,padding:"14px 16px",background:"#f7f7f5",borderRadius:10,display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px 24px"}}>
-          {[["Cliente",name||"—"],["Vehículo",vehicleStr||"—"],["Atendido por",asesor||"—"],["Vigencia","30 días"]].map(([l,v])=>(
+          {[["Cliente",name||"—"],["Teléfono",tel||"—"],["Vehículo",vehicleStr||"—"],["Atendido por",asesor||"—"],["Vigencia","30 días"]].map(([l,v])=>(
             <div key={l}><div style={{fontSize:10,color:"#888",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:3}}>{l}</div><div style={{fontSize:14,fontWeight:500}}>{v}</div></div>
           ))}
         </div>
@@ -632,7 +632,7 @@ function AdminView({onBack}){
 export default function App(){
   const [view,setView]=useState("config");
   const [admin,setAdmin]=useState(false);
-  const [name,setName]=useState(""); const [brand,setBrand]=useState(""); const [model,setModel]=useState(""); const [year,setYear]=useState("");
+  const [name,setName]=useState(""); const [tel,setTel]=useState(""); const [brand,setBrand]=useState(""); const [model,setModel]=useState(""); const [year,setYear]=useState("");
   const [asesor,setAsesor]=useState("");
   const [folio]=useState(makeFolio);
   const [opts,setOpts]=useState([blankOpt()]);
@@ -663,7 +663,7 @@ export default function App(){
     setActive(a=>Math.max(0,a>=i?a-1:a));
   }
 
-  if(view==="preview") return <div style={{fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",maxWidth:600,margin:"0 auto",padding:"2rem 1rem"}}><PrintView opts={opts} name={name} vehicleStr={vehicleStr} asesor={asesor} folio={folio} onBack={()=>setView("config")}/></div>;
+  if(view==="preview") return <div style={{fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",maxWidth:600,margin:"0 auto",padding:"2rem 1rem"}}><PrintView opts={opts} name={name} tel={tel} vehicleStr={vehicleStr} asesor={asesor} folio={folio} onBack={()=>setView("config")}/></div>;
 
   return(
     <div style={{fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",maxWidth:600,margin:"0 auto",padding:"0 1rem 6rem",position:"relative"}}>
@@ -680,6 +680,7 @@ export default function App(){
         <div style={{marginBottom:"1.5rem"}}>
           <SHead>Cliente</SHead>
           <Row first label="Nombre del cliente" right={<input type="text" value={name} onChange={e=>setName(e.target.value)} placeholder="Nombre completo" style={{padding:"9px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:200}}/>}/>
+          <Row label="Teléfono" right={<input type="tel" value={tel} onChange={e=>setTel(e.target.value)} placeholder="55 1234 5678" style={{padding:"9px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:200}}/>}/>
           <Row label="Marca" right={<Sel value={brand} onChange={v=>{setBrand(v);setModel("");}} w={165}><option value="">Seleccionar</option>{Object.keys(BRANDS).sort().map(b=><option key={b} value={b}>{b}</option>)}</Sel>}/>
           <Row label="Modelo" right={<Sel value={model} onChange={chooseModel} disabled={!brand} w={165}><option value="">Seleccionar</option>{models.map(m=><option key={m} value={m}>{m}</option>)}</Sel>}/>
           <Row label="Año" right={<Sel value={year} onChange={setYear} w={110}><option value="">Año</option>{YEARS.map(y=><option key={y} value={y}>{y}</option>)}</Sel>}/>
