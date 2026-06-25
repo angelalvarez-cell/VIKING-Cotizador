@@ -472,7 +472,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
 
   return(
     <div>
-      <style>{`@media print{.np{display:none!important}.opt-sec{break-inside:avoid}}`}</style>
+      <style>{`@media print{.np{display:none!important}.opt-sec{break-inside:avoid}.sec{break-inside:avoid}}`}</style>
       <div className="np" style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.5rem",paddingBottom:"1rem",borderBottom:`1px solid ${SEP}`,gap:10}}>
         <button onClick={onBack} style={{background:"none",border:"none",fontSize:15,color:MUTED,cursor:"pointer",fontFamily:"inherit",padding:0}}>← Editar</button>
         <div style={{display:"flex",gap:10,alignItems:"center"}}>
@@ -493,6 +493,43 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
           ))}
         </div>
         {multi&&<div style={{fontSize:13,color:"#666",marginBottom:18}}>Esta cotización incluye {active.length} opciones de protección para que elijas la que mejor se ajuste a tus necesidades.</div>}
+
+        <div className="sec" style={{marginBottom:24}}>
+          <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:8}}>¿Qué es Viking?</div>
+          <div style={{fontSize:12.5,color:"#444",lineHeight:1.65}}>
+            Viking by GAV refuerza los puntos más vulnerables del vehículo en dos frentes: el refuerzo de los vidrios, para dificultar que se rompan en un asalto, y el refuerzo de la carrocería con Kevlar de 9 capas. Todo con una instalación discreta que conserva la apariencia, el ajuste y la funcionalidad originales del vehículo.
+          </div>
+        </div>
+
+        <div className="sec" style={{marginBottom:26}}>
+          <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:10}}>Viking vs Viking Plus</div>
+          <table style={{width:"100%",borderCollapse:"collapse",fontSize:12.5}}>
+            <thead><tr>
+              <th style={{textAlign:"left",padding:"6px 8px",fontWeight:500,color:"#999",fontSize:10,textTransform:"uppercase",letterSpacing:"0.06em",borderBottom:"1px solid #ccc"}}>Característica</th>
+              <th style={{textAlign:"left",padding:"6px 8px",fontWeight:600,fontSize:11,borderBottom:"1px solid #ccc",background:"#f7f7f5"}}>Viking</th>
+              <th style={{textAlign:"left",padding:"6px 8px",fontWeight:600,fontSize:11,borderBottom:"1px solid #ccc",background:"#eef2f5"}}>Viking Plus</th>
+            </tr></thead>
+            <tbody>
+              {[
+                ["Grosor agregado","+3.5 mm (≈10 mm total)","+6.0 mm (≈13.5 mm total)"],
+                ["Ceja de acero","No","Sí"],
+                ["Acabado","Transparente","Transparente o ahumado 50%"],
+                ["Resistencia a impactos","Alta · vandalismo y golpes moderados","Muy alta · golpes fuertes y repetidos"],
+                ["Uso recomendado","Uso diario y prevención de robos","Máxima protección · autos de alto valor o rutas de riesgo"],
+              ].map((r,i)=>(
+                <tr key={i} style={{borderBottom:"1px solid #f0f0f0"}}>
+                  <td style={{padding:"7px 8px",fontWeight:500,color:"#333"}}>{r[0]}</td>
+                  <td style={{padding:"7px 8px",color:"#444"}}>{r[1]}</td>
+                  <td style={{padding:"7px 8px",color:"#444",background:"#fbfcfd"}}>{r[2]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div style={{fontSize:10,color:"#aaa",fontStyle:"italic",marginTop:8,lineHeight:1.5}}>
+            Viking aumenta la resistencia del vidrio original y da más tiempo de reacción. No es un blindaje certificado ni lo sustituye. Resultados basados en pruebas internas no certificadas.
+          </div>
+        </div>
+
         {active.map((o,idx)=>{
           const {items,sub,iva,total}=totals(o);
           return(
@@ -530,6 +567,22 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
             </div>
           );
         })}
+
+        <div className="sec" style={{marginTop:24,paddingTop:18,borderTop:"1px solid #e5e5e3"}}>
+          <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:10}}>Notas y condiciones</div>
+          <ol style={{margin:0,paddingLeft:18,fontSize:11.5,color:"#555",lineHeight:1.7}}>
+            <li>Anticipo del 50% del total para iniciar el trabajo; el saldo restante deberá estar cubierto antes de la entrega del vehículo.</li>
+            <li>Tiempo estimado en taller: 2 a 3 semanas hábiles.</li>
+            <li>Inspección previa documentada del vehículo antes de iniciar. Cualquier ajuste al alcance se comunica y reconfirma con el cliente.</li>
+            <li>El parabrisas (VK110) no está incluido: requiere evaluación previa y se cotiza por separado.</li>
+            <li>El polarizado no está incluido y se cotiza por separado.</li>
+            <li>Acabado Viking Plus disponible en transparente o ahumado 50%, a definir con el cliente antes de la instalación.</li>
+            <li>Se utilizan los vidrios originales del vehículo: se desmontan, se procesan en autoclave y se reinstalan en el mismo marco. No se modifica la estructura ni se alteran puertas o mecanismos.</li>
+            <li>Peso agregado mínimo (menos del 2% del peso del vehículo); los elevadores siguen funcionando con normalidad.</li>
+            <li>Vigencia de la cotización: 30 días a partir de la fecha de emisión.</li>
+          </ol>
+        </div>
+
         <div style={{marginTop:24,paddingTop:16,borderTop:"1.5px solid #111",display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:20}}>
           <div>
             <div style={{fontSize:10,color:"#888",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:5}}>Contacto</div>
@@ -655,6 +708,17 @@ export default function App(){
   const multi=opts.length>1;
   const curTotal=totals(opts[active]);
 
+  // Campos obligatorios para poder ver la cotización
+  const faltantes=[];
+  if(!asesor) faltantes.push("Atendido por");
+  if(!name.trim()) faltantes.push("Nombre");
+  if(!tel.trim()) faltantes.push("Teléfono");
+  if(!brand) faltantes.push("Marca");
+  if(!model) faltantes.push("Modelo");
+  if(!year) faltantes.push("Año");
+  if(!anyFilled) faltantes.push("Al menos un servicio");
+  const puedeVer = faltantes.length===0;
+
   function setOpt(i,next){setOpts(p=>p.map((o,idx)=>idx===i?next:o));}
   function chooseModel(m){
     setModel(m);
@@ -683,16 +747,16 @@ export default function App(){
         </div>
 
         <div style={{marginBottom:"1.5rem"}}>
-          <Row first label="Atendido por" right={<Sel value={asesor} onChange={setAsesor} w={200}><option value="">Seleccionar</option>{ATIENDE.map(a=><option key={a} value={a}>{a}</option>)}</Sel>}/>
+          <Row first label="Atendido por *" right={<Sel value={asesor} onChange={setAsesor} w={200}><option value="">Seleccionar</option>{ATIENDE.map(a=><option key={a} value={a}>{a}</option>)}</Sel>}/>
         </div>
 
         <div style={{marginBottom:"1.5rem"}}>
           <SHead>Cliente</SHead>
-          <Row first label="Nombre del cliente" right={<input type="text" value={name} onChange={e=>setName(e.target.value)} placeholder="Nombre completo" style={{padding:"9px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:200}}/>}/>
-          <Row label="Teléfono" right={<input type="tel" value={tel} onChange={e=>setTel(e.target.value)} placeholder="55 1234 5678" style={{padding:"9px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:200}}/>}/>
-          <Row label="Marca" right={<Sel value={brand} onChange={v=>{setBrand(v);setModel("");}} w={165}><option value="">Seleccionar</option>{Object.keys(BRANDS).sort().map(b=><option key={b} value={b}>{b}</option>)}</Sel>}/>
-          <Row label="Modelo" right={<Sel value={model} onChange={chooseModel} disabled={!brand} w={165}><option value="">Seleccionar</option>{models.map(m=><option key={m} value={m}>{m}</option>)}</Sel>}/>
-          <Row label="Año" right={<Sel value={year} onChange={setYear} w={110}><option value="">Año</option>{YEARS.map(y=><option key={y} value={y}>{y}</option>)}</Sel>}/>
+          <Row first label="Nombre del cliente *" right={<input type="text" value={name} onChange={e=>setName(e.target.value)} placeholder="Nombre completo" style={{padding:"9px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:200}}/>}/>
+          <Row label="Teléfono *" right={<input type="tel" value={tel} onChange={e=>setTel(e.target.value)} placeholder="55 1234 5678" style={{padding:"9px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:200}}/>}/>
+          <Row label="Marca *" right={<Sel value={brand} onChange={v=>{setBrand(v);setModel("");}} w={165}><option value="">Seleccionar</option>{Object.keys(BRANDS).sort().map(b=><option key={b} value={b}>{b}</option>)}</Sel>}/>
+          <Row label="Modelo *" right={<Sel value={model} onChange={chooseModel} disabled={!brand} w={165}><option value="">Seleccionar</option>{models.map(m=><option key={m} value={m}>{m}</option>)}</Sel>}/>
+          <Row label="Año *" right={<Sel value={year} onChange={setYear} w={110}><option value="">Año</option>{YEARS.map(y=><option key={y} value={y}>{y}</option>)}</Sel>}/>
         </div>
 
         {multi&&(
@@ -735,12 +799,17 @@ export default function App(){
               </div>
             </div>
           )}
+          {!puedeVer && (
+            <div style={{fontSize:12,color:"#b91c1c",marginBottom:8,lineHeight:1.5}}>
+              Para continuar, completa: {faltantes.join(" · ")}
+            </div>
+          )}
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:16}}>
             <div>
               <div style={{fontSize:11,color:MUTED,textTransform:"uppercase",letterSpacing:"0.08em"}}>{multi?`${OPT_NAMES[active]} · total c/IVA`:"Total con IVA"}</div>
               <div style={{fontSize:26,fontWeight:500,color:INK,letterSpacing:"-0.5px",lineHeight:1.15}}>{mxn(curTotal.total)}</div>
             </div>
-            <button onClick={()=>setView("preview")} style={{padding:"13px 26px",borderRadius:100,border:"none",background:INK,color:"#fff",fontSize:15,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
+            <button onClick={()=>{if(puedeVer)setView("preview");}} disabled={!puedeVer} style={{padding:"13px 26px",borderRadius:100,border:"none",background:puedeVer?INK:"#c7c7cc",color:"#fff",fontSize:15,cursor:puedeVer?"pointer":"not-allowed",fontFamily:"inherit",whiteSpace:"nowrap"}}>
               Ver cotización →
             </button>
           </div>
