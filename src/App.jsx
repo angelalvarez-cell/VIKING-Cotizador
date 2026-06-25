@@ -274,7 +274,7 @@ function CarStage({o}){
 
   return(
     <div style={{borderRadius:18,background:"linear-gradient(160deg,#fbfbfd,#f2f2f4)",marginBottom:"2rem",padding:"0.75rem"}}>
-      <div style={{position:"relative",width:"100%",aspectRatio:"16 / 10",maxHeight:300,margin:"0 auto"}}>
+      <div style={{position:"relative",width:"100%",aspectRatio:"16 / 7",maxHeight:300,margin:"0 auto"}}>
         <img src={base} alt="" style={{...layerStyle,zIndex:1}}/>
         {layers.map((s,i)=><img key={s} src={s} alt="" style={{...layerStyle,zIndex:10+i}}/>)}
       </div>
@@ -340,15 +340,17 @@ function QuoteIllustration({o}){
   const views=viewsWithContent(o);
   if(views.length===0) return null;
   // Tamaño de las ilustraciones en la cotización/PDF. Súbelos o bájalos a tu gusto.
-  const W_LATERAL = 320;  // ancho de la vista lateral
-  const W_OTRA    = 220;  // ancho de frente / atrás
+  const W_LATERAL = 460;  // ancho de la vista lateral
+  const W_OTRA    = 230;  // ancho de frente / atrás
   return(
     <div style={{display:"flex",flexDirection:"column",gap:8,alignItems:"center",marginTop:16}}>
       {views.map(v=>{
         const {base,layers}=viewLayers(o,v);
         const w = v==="lateral" ? W_LATERAL : W_OTRA;
+        // La lateral es ancha y baja; el frente/atrás es más cuadrado.
+        const ar = v==="lateral" ? "16 / 7" : "10 / 11";
         return(
-          <div key={v} style={{position:"relative",width:w,aspectRatio:"16 / 10"}}>
+          <div key={v} style={{position:"relative",width:w,aspectRatio:ar}}>
             <img src={base} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain"}}/>
             {layers.map((s,i)=><img key={s} src={s} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain"}}/>)}
           </div>
