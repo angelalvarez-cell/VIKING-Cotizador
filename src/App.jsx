@@ -270,7 +270,9 @@ function CarStage({o}){
     if(o.cajuela) layers.push(IMG.ov_cajuela);
   }
 
-  const layerStyle={position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain"};
+  // Zoom del vehículo en pantalla. Sube o baja este número si lo quieres más grande o más chico.
+  const STAGE_ZOOM = 1.7;
+  const layerStyle={position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain",transform:`scale(${STAGE_ZOOM})`};
 
   return(
     <div style={{borderRadius:18,background:"linear-gradient(160deg,#fbfbfd,#f2f2f4)",marginBottom:"2rem",padding:"0.75rem"}}>
@@ -335,15 +337,18 @@ function viewLayers(o,view){
   return {base,layers};
 }
 
-// Ilustración para el PDF: todas las vistas con contenido, en fila
+// Ilustración para el PDF: todas las vistas con contenido, en columna
 function QuoteIllustration({o}){
   const views=viewsWithContent(o);
   if(views.length===0) return null;
+  // Tamaño de las ilustraciones en la cotización/PDF. Súbelos o bájalos a tu gusto.
+  const W_LATERAL = 440;  // ancho de la vista lateral
+  const W_OTRA    = 300;  // ancho de frente / atrás
   return(
-    <div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap",marginTop:14,padding:"10px 0"}}>
+    <div style={{display:"flex",flexDirection:"column",gap:6,alignItems:"center",marginTop:16}}>
       {views.map(v=>{
         const {base,layers}=viewLayers(o,v);
-        const w = v==="lateral" ? 230 : 150;
+        const w = v==="lateral" ? W_LATERAL : W_OTRA;
         return(
           <div key={v} style={{position:"relative",width:w,aspectRatio:"16 / 10"}}>
             <img src={base} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain"}}/>
