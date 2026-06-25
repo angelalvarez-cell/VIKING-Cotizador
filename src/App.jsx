@@ -270,11 +270,13 @@ function CarStage({o}){
     if(o.cajuela) layers.push(IMG.ov_cajuela);
   }
 
-  const layerStyle={position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain"};
+  // Zoom del vehículo en pantalla (las imágenes traen algo de aire; esto lo compensa). Súbelo o bájalo a tu gusto.
+  const STAGE_ZOOM = 1.4;
+  const layerStyle={position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain",transform:`scale(${STAGE_ZOOM})`};
 
   return(
     <div style={{borderRadius:18,background:"linear-gradient(160deg,#fbfbfd,#f2f2f4)",marginBottom:"2rem",padding:"0.75rem"}}>
-      <div style={{position:"relative",width:"100%",aspectRatio:"16 / 7",maxHeight:300,margin:"0 auto"}}>
+      <div style={{position:"relative",width:"100%",aspectRatio:"16 / 7",maxHeight:300,margin:"0 auto",overflow:"hidden",borderRadius:12}}>
         <img src={base} alt="" style={{...layerStyle,zIndex:1}}/>
         {layers.map((s,i)=><img key={s} src={s} alt="" style={{...layerStyle,zIndex:10+i}}/>)}
       </div>
@@ -339,9 +341,11 @@ function viewLayers(o,view){
 function QuoteIllustration({o}){
   const views=viewsWithContent(o);
   if(views.length===0) return null;
-  // Tamaño de las ilustraciones en la cotización/PDF. Súbelos o bájalos a tu gusto.
+  // Tamaño y zoom de las ilustraciones en la cotización/PDF. Súbelos o bájalos a tu gusto.
   const W_LATERAL = 460;  // ancho de la vista lateral
   const W_OTRA    = 230;  // ancho de frente / atrás
+  const PDF_ZOOM  = 1.4;  // zoom (compensa el aire de las imágenes)
+  const imgStyle={position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain",transform:`scale(${PDF_ZOOM})`};
   return(
     <div style={{display:"flex",flexDirection:"column",gap:8,alignItems:"center",marginTop:16}}>
       {views.map(v=>{
@@ -350,9 +354,9 @@ function QuoteIllustration({o}){
         // La lateral es ancha y baja; el frente/atrás es más cuadrado.
         const ar = v==="lateral" ? "16 / 7" : "10 / 11";
         return(
-          <div key={v} style={{position:"relative",width:w,aspectRatio:ar}}>
-            <img src={base} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain"}}/>
-            {layers.map((s,i)=><img key={s} src={s} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain"}}/>)}
+          <div key={v} style={{position:"relative",width:w,aspectRatio:ar,overflow:"hidden"}}>
+            <img src={base} alt="" style={imgStyle}/>
+            {layers.map((s,i)=><img key={s} src={s} alt="" style={imgStyle}/>)}
           </div>
         );
       })}
