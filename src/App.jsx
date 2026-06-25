@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 
 // ════════════════════════════════════════════════════════════════════
 //  COTIZADOR VIKING BY GAV — versión producción
@@ -540,6 +540,83 @@ function PrintView({opts,name,vehicleStr,asesor,folio,onBack}){
           Precios en pesos mexicanos antes de IVA (16%). Vigencia 30 días. Garantía 5 años propietario original: cubre delaminación, burbujeo y defectos de instalación. No cubre accidentes, golpes ni vandalismo. No transferible. Viking by GAV no es blindaje balístico certificado.
         </div>
       </div>
+    </div>
+  );
+}
+
+// ── Acceso admin (disparador discreto al pie) ──────────────────────
+function AdminGate({onEnter}){
+  const [open,setOpen]=useState(false);
+  const [pass,setPass]=useState("");
+  const [err,setErr]=useState(false);
+  const intentar=()=>{ if(pass===ADMIN_PASS) onEnter(); else setErr(true); };
+  if(!open) return (
+    <div style={{textAlign:"center",marginTop:"3rem",paddingTop:"1.5rem",borderTop:`1px solid ${SEP}`}}>
+      <button onClick={()=>setOpen(true)} style={{background:"none",border:"none",fontSize:11,color:"#c7c7cc",cursor:"pointer",fontFamily:"inherit",letterSpacing:"0.08em",textTransform:"uppercase"}}>Admin</button>
+    </div>
+  );
+  return (
+    <div style={{display:"flex",gap:8,justifyContent:"center",alignItems:"center",marginTop:"3rem",paddingTop:"1.5rem",borderTop:`1px solid ${SEP}`}}>
+      <input type="password" value={pass} autoFocus placeholder="Contraseña"
+        onChange={e=>{setPass(e.target.value);setErr(false);}}
+        onKeyDown={e=>{if(e.key==="Enter")intentar();}}
+        style={{padding:"8px 12px",border:`1px solid ${err?"#b91c1c":"rgba(0,0,0,.14)"}`,borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:160}}/>
+      <button onClick={intentar} style={{padding:"8px 16px",borderRadius:100,background:INK,color:"#fff",border:"none",fontSize:13,cursor:"pointer",fontFamily:"inherit"}}>Entrar</button>
+      <button onClick={()=>{setOpen(false);setPass("");setErr(false);}} style={{background:"none",border:"none",fontSize:13,color:MUTED,cursor:"pointer",fontFamily:"inherit"}}>Cancelar</button>
+    </div>
+  );
+}
+
+// ── Vista admin: historial de cotizaciones (lee de Google Sheets) ──
+function AdminView({onBack}){
+  const [rows,setRows]=useState(null);
+  const [err,setErr]=useState("");
+  const [loading,setLoading]=useState(true);
+  useEffect(()=>{
+    let alive=true;
+    (async()=>{
+      if(!SHEETS_URL || SHEETS_URL.startsWith("PEGAR")){
+        setErr("La URL de Google Sheets aún no está configurada (constante SHEETS_URL).");
+        setLoading(false); return;
+      }
+      try{
+        const res=await fetch(SHEETS_URL);
+        const data=await res.json();
+        const list=Array.isArray(data)?data:(data.rows||data.data||[]);
+        if(alive){ setRows(list); setLoading(false); }
+      }catch(e){ if(alive){ setErr("No se pudo cargar el historial desde Sheets."); setLoading(false); } }
+    })();
+    return ()=>{alive=false;};
+  },[]);
+  return(
+    <div style={{fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",maxWidth:760,margin:"0 auto",padding:"2rem 1rem"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.5rem",paddingBottom:"1rem",borderBottom:`1px solid ${SEP}`}}>
+        <button onClick={onBack} style={{background:"none",border:"none",fontSize:15,color:MUTED,cursor:"pointer",fontFamily:"inherit",padding:0}}>← Volver al cotizador</button>
+        <Logo h={40} variant="negro"/>
+      </div>
+      <div style={{fontSize:20,fontWeight:500,marginBottom:"1.25rem"}}>Historial de cotizaciones</div>
+      {loading && <div style={{color:MUTED,fontSize:14}}>Cargando…</div>}
+      {err && <div style={{color:"#b91c1c",fontSize:14}}>{err}</div>}
+      {!loading && !err && rows && rows.length===0 && <div style={{color:MUTED,fontSize:14}}>Aún no hay cotizaciones guardadas.</div>}
+      {!loading && !err && rows && rows.length>0 && (
+        <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
+          <thead><tr style={{borderBottom:"1px solid #ccc",textAlign:"left",color:MUTED}}>
+            {["Fecha","Folio","Cliente","Vehículo","Total","Estado"].map(h=><th key={h} style={{padding:"8px 6px",fontWeight:500,fontSize:11,textTransform:"uppercase",letterSpacing:"0.06em"}}>{h}</th>)}
+          </tr></thead>
+          <tbody>
+            {rows.map((r,i)=>(
+              <tr key={i} style={{borderBottom:`1px solid ${SEP}`}}>
+                <td style={{padding:"8px 6px"}}>{r.fecha||"—"}</td>
+                <td style={{padding:"8px 6px",fontFamily:"monospace"}}>{r.folio||"—"}</td>
+                <td style={{padding:"8px 6px"}}>{r.cliente||"—"}</td>
+                <td style={{padding:"8px 6px"}}>{r.vehiculo||"—"}</td>
+                <td style={{padding:"8px 6px",whiteSpace:"nowrap"}}>{r.total?mxn(Number(r.total)):"—"}</td>
+                <td style={{padding:"8px 6px"}}>{r.estado||"—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
