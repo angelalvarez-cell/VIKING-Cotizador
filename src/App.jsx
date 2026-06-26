@@ -333,13 +333,11 @@ function CarStage({o}){
     if(o.cajuela) layers.push(IMG.ov_cajuela);
   }
 
-  // Zoom del vehículo en pantalla (las imágenes traen algo de aire; esto lo compensa). Súbelo o bájalo a tu gusto.
-  const STAGE_ZOOM = 1.4;
-  const layerStyle={position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain",transform:`scale(${STAGE_ZOOM})`};
+  const layerStyle={position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain"};
 
   return(
     <div style={{borderRadius:18,background:"linear-gradient(160deg,#fbfbfd,#f2f2f4)",marginBottom:"2rem",padding:"0.75rem"}}>
-      <div style={{position:"relative",width:"100%",aspectRatio:"16 / 7",maxHeight:300,margin:"0 auto",overflow:"hidden",borderRadius:12}}>
+      <div style={{position:"relative",width:"100%",aspectRatio:"16 / 7",maxHeight:300,margin:"0 auto"}}>
         <img src={base} alt="" style={{...layerStyle,zIndex:1}}/>
         {layers.map((s,i)=><img key={s} src={s} alt="" style={{...layerStyle,zIndex:10+i}}/>)}
       </div>
@@ -409,11 +407,10 @@ function viewLayers(o,view){
 function QuoteIllustration({o}){
   const views=viewsWithContent(o);
   if(views.length===0) return null;
-  // Tamaño y zoom de las ilustraciones en la cotización/PDF. Súbelos o bájalos a tu gusto.
+  // Tamaño de las ilustraciones en la cotización/PDF. Súbelos o bájalos a tu gusto.
   const W_LATERAL = 460;  // ancho de la vista lateral
   const W_OTRA    = 230;  // ancho de frente / atrás
-  const PDF_ZOOM  = 1.4;  // zoom (compensa el aire de las imágenes)
-  const imgStyle={position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain",transform:`scale(${PDF_ZOOM})`};
+  const imgStyle={position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain"};
   return(
     <div style={{display:"flex",flexDirection:"column",gap:8,alignItems:"center",marginTop:16}}>
       {views.map(v=>{
@@ -422,15 +419,15 @@ function QuoteIllustration({o}){
         // La lateral es ancha y baja; el frente/atrás es más cuadrado.
         const ar = v==="lateral" ? "16 / 7" : "10 / 11";
         return(
-          <div key={v} style={{position:"relative",width:w,aspectRatio:ar,overflow:"hidden"}}>
+          <div key={v} style={{position:"relative",width:w,aspectRatio:ar}}>
             <img src={base} alt="" style={imgStyle}/>
             {layers.map((s,i)=><img key={s} src={s} alt="" style={imgStyle}/>)}
           </div>
         );
       })}
       <div style={{display:"flex",gap:16,justifyContent:"center",alignItems:"center",fontSize:10.5,color:"#888",marginTop:4}}>
-        <span style={{display:"flex",alignItems:"center",gap:5}}><span style={{width:10,height:10,borderRadius:2,background:"#c0392b",display:"inline-block"}}/>Vidrios reforzados</span>
-        <span style={{display:"flex",alignItems:"center",gap:5}}><span style={{width:10,height:10,borderRadius:2,background:"#9acd32",display:"inline-block"}}/>Kevlar en carrocería</span>
+        <span style={{display:"flex",alignItems:"center",gap:5}}><svg width="10" height="10" style={{flexShrink:0}}><rect width="10" height="10" rx="2" fill="#c0392b"/></svg>Vidrios reforzados</span>
+        <span style={{display:"flex",alignItems:"center",gap:5}}><svg width="10" height="10" style={{flexShrink:0}}><rect width="10" height="10" rx="2" fill="#9acd32"/></svg>Kevlar en carrocería</span>
       </div>
     </div>
   );
@@ -644,7 +641,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8}}>
                         <span style={{fontSize:11.5,color:"#999"}}>Nivel de cobertura</span>
                         <span style={{display:"flex",gap:4,alignItems:"center"}}>
-                          {[1,2,3].map(n=><span key={n} style={{width:18,height:5,borderRadius:3,background:n<=nc.idx?INK:"#e0e0e0"}}/>)}
+                          {[1,2,3].map(n=><svg key={n} width="18" height="5" style={{flexShrink:0}}><rect width="18" height="5" rx="2.5" fill={n<=nc.idx?INK:"#e0e0e0"}/></svg>)}
                           <span style={{fontSize:12,fontWeight:600,color:INK,marginLeft:4}}>{nc.nivel}</span>
                         </span>
                       </div>
