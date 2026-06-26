@@ -179,6 +179,38 @@ const C={
   carga:"VK135",techo:{coche:"VK136",camioneta:"VK137"},
 };
 const mxn=n=>"$"+Math.round(n).toLocaleString("es-MX");
+
+// ── Peso aproximado agregado (kg) por zona ────────────────────────────────
+// Cifras de referencia para una camioneta grande; el coche se ajusta a la baja.
+// Calibradas con la guía: todos los vidrios Plus ≈27 kg · Kevlar 4 puertas+cajuela ≈14 kg.
+const W = {
+  lateral: 3.0,   // por cristal lateral (Viking Plus)
+  medallon: 3.0,  // medallón (Viking Plus)
+  parabrisas: 5.0,
+  vikingFactor: 0.6,  // Viking (3.5 mm) pesa ~60% del Plus (6.0 mm)
+  puerta: 2.5,    // Kevlar por puerta
+  cajuela: 4.0,
+  posteLado: 0.8, // Kevlar por lado de poste (cada poste = 2 lados)
+  carga: 4.0,
+  techo: 5.0,
+  cocheFactor: 0.8, // un coche tiene paneles/cristales más chicos que una camioneta
+};
+
+// Peso aproximado agregado según lo que eligió el cliente y el tipo de vehículo
+function estPeso(o){
+  let w=0;
+  if(o.lat) w += o.lat * W.lateral * (o.latT==="p"?1:W.vikingFactor);
+  if(o.med) w += W.medallon * (o.medT==="p"?1:W.vikingFactor);
+  if(o.para) w += W.parabrisas;
+  if(o.puertas>0) w += o.puertas * W.puerta;
+  if(o.cajuela) w += W.cajuela;
+  const postes=[o.posteB,o.posteC,o.posteD].filter(Boolean).length;
+  if(postes>0) w += postes * 2 * W.posteLado;
+  if(o.carga && o.tipo==="camioneta") w += W.carga;
+  if(o.techo) w += W.techo;
+  if(o.tipo==="coche") w *= W.cocheFactor;
+  return w;
+}
 const today=new Date().toLocaleDateString("es-MX",{day:"numeric",month:"long",year:"numeric"});
 
 // Datos de contacto de Viking (editar con los reales)
@@ -501,7 +533,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
         <div className="sec" style={{marginBottom:24}}>
           <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:8}}>¿Qué es Viking?</div>
           <div style={{fontSize:12.5,color:"#444",lineHeight:1.65}}>
-            Viking by GAV refuerza los puntos más vulnerables del vehículo en dos frentes: el refuerzo de los vidrios, para dificultar que se rompan en un asalto, y el refuerzo de la carrocería con Kevlar de 9 capas. Todo con una instalación discreta que conserva la apariencia, el ajuste y la funcionalidad originales del vehículo.
+            Viking by GAV es un sistema de protección para vehículos que refuerza los puntos más vulnerables del coche. Trabajamos en dos frentes: el refuerzo de los vidrios y el refuerzo de la carrocería con Kevlar de 9 capas en puertas, postes, techo, cajuela y área de carga. Los cristales se transforman en una verdadera armadura que resiste golpes de objetos como martillos, hachas, picos y bats, dando más tiempo de reacción ante un asalto. Todo con una instalación discreta que conserva la apariencia, la funcionalidad y el manejo originales del vehículo.
           </div>
         </div>
 
@@ -565,6 +597,9 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
                     <span style={{fontSize:14,fontWeight:500}}>{multi?`Total ${OPT_NAMES[idx]}`:"Total con IVA"}</span>
                     <span style={{fontSize:22,fontWeight:500,letterSpacing:"-0.5px"}}>{mxn(total)}</span>
                   </div>
+                  <div style={{display:"flex",justifyContent:"space-between",fontSize:11.5,color:"#999",marginTop:6}}>
+                    <span>Peso aprox. agregado</span><span>~{Math.round(estPeso(o))} kg</span>
+                  </div>
                 </div>
               </div>
               <QuoteIllustration o={o}/>
@@ -581,7 +616,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
             <li>El polarizado no está incluido y se cotiza por separado.</li>
             <li>Acabado Viking Plus disponible en transparente o ahumado 50%, a definir con el cliente antes de la instalación.</li>
             <li>Se utilizan los vidrios originales del vehículo: se desmontan, se procesan en autoclave y se reinstalan en el mismo marco. No se modifica la estructura ni se alteran puertas o mecanismos.</li>
-            <li>Peso agregado aproximado: alrededor de 14 kg con Kevlar en puertas y cajuela, y hasta ~27 kg con todos los vidrios reforzados (referencia para una camioneta grande; varía según el vehículo). Los elevadores siguen funcionando con normalidad.</li>
+            <li>El peso aproximado agregado se indica en cada opción y es una estimación de referencia que varía según el vehículo. Es mínimo respecto al peso total y los elevadores siguen funcionando con normalidad.</li>
             <li>En la cobertura de 4 puertas, si las puertas traseras cuentan con aletas (ventanas fijas pequeñas), van incluidas sin costo adicional.</li>
             <li>Las ilustraciones son referenciales y pueden no coincidir exactamente con el modelo de tu vehículo; la cobertura indicada aplica igual.</li>
             <li>Vigencia de la cotización: 30 días a partir de la fecha de emisión.</li>
