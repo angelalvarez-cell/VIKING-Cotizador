@@ -360,6 +360,10 @@ function QuoteIllustration({o}){
           </div>
         );
       })}
+      <div style={{display:"flex",gap:16,justifyContent:"center",alignItems:"center",fontSize:10.5,color:"#888",marginTop:4}}>
+        <span style={{display:"flex",alignItems:"center",gap:5}}><span style={{width:10,height:10,borderRadius:2,background:"#c0392b",display:"inline-block"}}/>Vidrios reforzados</span>
+        <span style={{display:"flex",alignItems:"center",gap:5}}><span style={{width:10,height:10,borderRadius:2,background:"#9acd32",display:"inline-block"}}/>Kevlar en carrocería</span>
+      </div>
     </div>
   );
 }
@@ -574,11 +578,12 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
             <li>Anticipo del 50% del total para iniciar el trabajo; el saldo restante deberá estar cubierto antes de la entrega del vehículo.</li>
             <li>Tiempo estimado en taller: 2 a 3 semanas hábiles.</li>
             <li>Inspección previa documentada del vehículo antes de iniciar. Cualquier ajuste al alcance se comunica y reconfirma con el cliente.</li>
-            <li>El parabrisas (VK110) no está incluido: requiere evaluación previa y se cotiza por separado.</li>
             <li>El polarizado no está incluido y se cotiza por separado.</li>
             <li>Acabado Viking Plus disponible en transparente o ahumado 50%, a definir con el cliente antes de la instalación.</li>
             <li>Se utilizan los vidrios originales del vehículo: se desmontan, se procesan en autoclave y se reinstalan en el mismo marco. No se modifica la estructura ni se alteran puertas o mecanismos.</li>
-            <li>Peso agregado mínimo (menos del 2% del peso del vehículo); los elevadores siguen funcionando con normalidad.</li>
+            <li>Peso agregado aproximado: alrededor de 14 kg con Kevlar en puertas y cajuela, y hasta ~27 kg con todos los vidrios reforzados (referencia para una camioneta grande; varía según el vehículo). Los elevadores siguen funcionando con normalidad.</li>
+            <li>En la cobertura de 4 puertas, si las puertas traseras cuentan con aletas (ventanas fijas pequeñas), van incluidas sin costo adicional.</li>
+            <li>Las ilustraciones son referenciales y pueden no coincidir exactamente con el modelo de tu vehículo; la cobertura indicada aplica igual.</li>
             <li>Vigencia de la cotización: 30 días a partir de la fecha de emisión.</li>
           </ol>
         </div>
