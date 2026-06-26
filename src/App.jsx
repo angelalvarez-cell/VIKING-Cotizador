@@ -211,6 +211,33 @@ function estPeso(o){
   if(o.tipo==="coche") w *= W.cocheFactor;
   return w;
 }
+
+// Nivel de cobertura aproximado según lo elegido, con sugerencia de mejora (upsell)
+function nivelCobertura(o){
+  const vidrios=(o.lat?1:0)+(o.med?1:0)+(o.para?1:0);
+  const kevlar=(o.puertas>0?1:0)+(o.cajuela?1:0)+((o.posteB||o.posteC||o.posteD)?1:0)+((o.carga&&o.tipo==="camioneta")?1:0)+(o.techo?1:0);
+  const vidriosAmplio = o.lat===6 || (o.lat>=4 && o.med);
+  let nivel, idx;
+  if(vidriosAmplio && kevlar>=3){ nivel="Integral"; idx=3; }
+  else if((o.lat>=4||vidrios>=2) && kevlar>=1){ nivel="Reforzada"; idx=2; }
+  else { nivel="Básica"; idx=1; }
+  // Sugerencia para subir de nivel
+  let sugerencia="";
+  if(idx<3){
+    if(kevlar===0) sugerencia="Agrega Kevlar en puertas para subir a Reforzada.";
+    else if(!o.med && o.lat) sugerencia="Suma el medallón para una cobertura de vidrios más completa.";
+    else if(o.lat && o.lat<6 && o.tipo==="camioneta") sugerencia="Amplía a 6 laterales para cubrir también las ventanas traseras.";
+    else if(kevlar<3) sugerencia="Suma más zonas de Kevlar (postes, techo o cajuela) para llegar a Integral.";
+    else sugerencia="Combina vidrios amplios + Kevlar en varias zonas para llegar a Integral.";
+  }
+  return {nivel, idx, sugerencia};
+}
+
+// Fecha desplazada N días, formateada en español
+function fechaMas(dias){
+  const d=new Date(); d.setDate(d.getDate()+dias);
+  return d.toLocaleDateString("es-MX",{day:"numeric",month:"long",year:"numeric"});
+}
 const today=new Date().toLocaleDateString("es-MX",{day:"numeric",month:"long",year:"numeric"});
 
 // Datos de contacto de Viking (editar con los reales)
@@ -218,8 +245,12 @@ const VIKING_INFO = {
   tel: "55 0000 0000",
   correo: "contacto@gav.mx",
   direccion: "Dirección del taller, Ciudad",
-  web: "gav.mx · @viking.gav",
+  web: "gav.mx · @vikingbyGAV",
 };
+
+// WhatsApp para el QR de la cotización. Formato internacional sin signos: 52 + 10 dígitos.
+// Ejemplo CDMX: "525512345678"
+const WHATSAPP = "523332460342";
 
 // URL del Web App de Google Sheets (pegar la que termina en /exec)
 const SHEETS_URL = "PEGAR_AQUI_TU_URL_DE_APPS_SCRIPT";
@@ -332,15 +363,20 @@ function CarStage({o}){
 
 function buildItems(o){
   const l=[];
-  if(o.lat)l.push({code:C.lat[o.lat][o.latT],label:`${o.latT==="p"?"Viking Plus":"Viking"} · ${o.lat} laterales`,price:P.lat[o.lat][o.latT]});
-  if(o.med)l.push({code:C.med[o.medT],label:`${o.medT==="p"?"Viking Plus":"Viking"} · Medallón`,price:P.med[o.medT]});
-  if(o.para)l.push({code:C.para,label:"Viking · Parabrisas",price:P.para});
-  if(o.puertas>0)l.push({code:C.puerta,label:`Kevlar puertas ×${o.puertas}`,price:P.puerta*o.puertas});
-  if(o.cajuela)l.push({code:C.cajuela[o.tipo],label:"Kevlar cajuela",price:P.cajuela[o.tipo]});
+  const grosor=t=>t==="p"?"+6.0 mm con ceja de acero":"+3.5 mm";
+  if(o.lat){
+    const aletas=o.lat>=4?", aletas incluidas":"";
+    const cobertura=o.lat===2?"2 puertas delanteras":o.lat===4?"4 puertas":"4 puertas + 2 ventanas traseras fijas";
+    l.push({code:C.lat[o.lat][o.latT],label:`${o.latT==="p"?"Viking Plus":"Viking"} · ${o.lat} laterales`,desc:`Refuerza ${cobertura} (${o.lat} cristales). ${grosor(o.latT)} sobre el cristal original${aletas}.`,price:P.lat[o.lat][o.latT]});
+  }
+  if(o.med)l.push({code:C.med[o.medT],label:`${o.medT==="p"?"Viking Plus":"Viking"} · Medallón`,desc:`Refuerza el cristal trasero (medallón). ${grosor(o.medT)} sobre el cristal original.`,price:P.med[o.medT]});
+  if(o.para)l.push({code:C.para,label:"Viking · Parabrisas",desc:"Refuerzo del parabrisas. Sujeto a evaluación previa por la curvatura del cristal.",price:P.para});
+  if(o.puertas>0)l.push({code:C.puerta,label:`Kevlar puertas ×${o.puertas}`,desc:`Refuerzo interior de Kevlar de 9 capas en ${o.puertas} ${o.puertas===1?"puerta":"puertas"}. No altera la apariencia.`,price:P.puerta*o.puertas});
+  if(o.cajuela)l.push({code:C.cajuela[o.tipo],label:"Kevlar cajuela",desc:"Refuerzo interior de Kevlar de 9 capas en la cajuela.",price:P.cajuela[o.tipo]});
   const postesList=[o.posteB&&"B",o.posteC&&"C",o.posteD&&"D"].filter(Boolean);
-  if(postesList.length>0)l.push({code:C.poste[o.tipo],label:`Kevlar postes ${postesList.join(", ")} (×2 c/u)`,price:P.poste[o.tipo]*postesList.length*2});
-  if(o.carga&&o.tipo==="camioneta")l.push({code:C.carga,label:"Kevlar área de carga",price:P.carga});
-  if(o.techo)l.push({code:C.techo[o.tipo],label:"Kevlar techo",price:P.techo[o.tipo]});
+  if(postesList.length>0)l.push({code:C.poste[o.tipo],label:`Kevlar postes ${postesList.join(", ")} (×2 c/u)`,desc:`Refuerzo interior de Kevlar de 9 capas en los postes ${postesList.join(", ")}, ambos lados del vehículo.`,price:P.poste[o.tipo]*postesList.length*2});
+  if(o.carga&&o.tipo==="camioneta")l.push({code:C.carga,label:"Kevlar área de carga",desc:"Refuerzo interior de Kevlar de 9 capas en el área de carga, ambos lados.",price:P.carga});
+  if(o.techo)l.push({code:C.techo[o.tipo],label:"Kevlar techo",desc:"Refuerzo interior de Kevlar de 9 capas en el techo.",price:P.techo[o.tipo]});
   return l;
 }
 function totals(o){const items=buildItems(o);const sub=items.reduce((s,i)=>s+i.price,0);const iva=Math.round(sub*.16);return{items,sub,iva,total:sub+iva};}
@@ -524,7 +560,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
           <div style={{textAlign:"right"}}><div style={{fontSize:20,fontWeight:500}}>Cotización</div><div style={{fontSize:12,color:"#888",marginTop:3}}>{today}</div><div style={{fontSize:12,color:"#aaa",marginTop:2,fontFamily:"monospace"}}>{folio}</div></div>
         </div>
         <div style={{marginBottom:24,padding:"14px 16px",background:"#f7f7f5",borderRadius:10,display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px 24px"}}>
-          {[["Cliente",name||"—"],["Teléfono",tel||"—"],["Vehículo",vehicleStr||"—"],["Atendido por",asesor||"—"],["Vigencia","30 días"]].map(([l,v])=>(
+          {[["Cliente",name||"—"],["Teléfono",tel||"—"],["Vehículo",vehicleStr||"—"],["Atendido por",asesor||"—"],["Vigencia",`hasta el ${fechaMas(30)}`],["Entrega estimada","~2 a 3 semanas desde el inicio"]].map(([l,v])=>(
             <div key={l}><div style={{fontSize:10,color:"#888",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:3}}>{l}</div><div style={{fontSize:14,fontWeight:500}}>{v}</div></div>
           ))}
         </div>
@@ -582,9 +618,12 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
                 <tbody>
                   {items.map((it,i)=>(
                     <tr key={i} style={{borderBottom:"1px solid #f0f0f0"}}>
-                      <td style={{padding:"9px 0",color:"#aaa",fontSize:12}}>{it.code}</td>
-                      <td style={{padding:"9px 8px"}}>{it.label}</td>
-                      <td style={{padding:"9px 0",textAlign:"right",whiteSpace:"nowrap"}}>{mxn(it.price)}</td>
+                      <td style={{padding:"9px 0",color:"#aaa",fontSize:12,verticalAlign:"top"}}>{it.code}</td>
+                      <td style={{padding:"9px 8px"}}>
+                        <div>{it.label}</div>
+                        {it.desc&&<div style={{fontSize:11,color:"#999",lineHeight:1.45,marginTop:2}}>{it.desc}</div>}
+                      </td>
+                      <td style={{padding:"9px 0",textAlign:"right",whiteSpace:"nowrap",verticalAlign:"top"}}>{mxn(it.price)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -600,12 +639,75 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
                   <div style={{display:"flex",justifyContent:"space-between",fontSize:11.5,color:"#999",marginTop:6}}>
                     <span>Peso aprox. agregado</span><span>~{Math.round(estPeso(o))} kg</span>
                   </div>
+                  {(()=>{const nc=nivelCobertura(o);return(
+                    <div style={{marginTop:8,paddingTop:8,borderTop:"1px solid #f0f0f0"}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8}}>
+                        <span style={{fontSize:11.5,color:"#999"}}>Nivel de cobertura</span>
+                        <span style={{display:"flex",gap:4,alignItems:"center"}}>
+                          {[1,2,3].map(n=><span key={n} style={{width:18,height:5,borderRadius:3,background:n<=nc.idx?INK:"#e0e0e0"}}/>)}
+                          <span style={{fontSize:12,fontWeight:600,color:INK,marginLeft:4}}>{nc.nivel}</span>
+                        </span>
+                      </div>
+                      {nc.sugerencia&&<div style={{fontSize:10.5,color:"#b5852a",marginTop:5,lineHeight:1.45}}>Sugerencia: {nc.sugerencia}</div>}
+                    </div>
+                  );})()}
                 </div>
               </div>
               <QuoteIllustration o={o}/>
             </div>
           );
         })}
+
+        <div className="sec" style={{marginTop:24,marginBottom:4}}>
+          <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:10}}>Viking vs blindaje tradicional</div>
+          <table style={{width:"100%",borderCollapse:"collapse",fontSize:12.5}}>
+            <thead><tr>
+              <th style={{textAlign:"left",padding:"6px 8px",fontWeight:500,color:"#999",fontSize:10,textTransform:"uppercase",letterSpacing:"0.06em",borderBottom:"1px solid #ccc"}}></th>
+              <th style={{textAlign:"left",padding:"6px 8px",fontWeight:600,fontSize:11,borderBottom:"1px solid #ccc",background:"#eef2f5"}}>Viking by GAV</th>
+              <th style={{textAlign:"left",padding:"6px 8px",fontWeight:600,fontSize:11,borderBottom:"1px solid #ccc",background:"#f7f7f5"}}>Blindaje tradicional</th>
+            </tr></thead>
+            <tbody>
+              {[
+                ["Peso agregado","Bajo (decenas de kg)","Muy alto (cientos de kg)"],
+                ["Instalación","Discreta, conserva el interior","Invasiva, suele sustituir piezas"],
+                ["Reversible","Sí, sin alterar la estructura","No, modifica el vehículo"],
+                ["Apariencia","Idéntica a la original","Cambia peso, manejo y look"],
+                ["Inversión","Accesible, por zonas","Mucho mayor"],
+                ["Garantía de fábrica","Se conserva","Suele afectarse"],
+              ].map((r,i)=>(
+                <tr key={i} style={{borderBottom:"1px solid #f0f0f0"}}>
+                  <td style={{padding:"7px 8px",fontWeight:500,color:"#333"}}>{r[0]}</td>
+                  <td style={{padding:"7px 8px",color:"#444",background:"#fbfcfd"}}>{r[1]}</td>
+                  <td style={{padding:"7px 8px",color:"#888"}}>{r[2]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div style={{fontSize:10,color:"#aaa",fontStyle:"italic",marginTop:8,lineHeight:1.5}}>
+            Viking es una solución de protección y seguridad; no es un blindaje balístico certificado ni pretende sustituirlo. Su objetivo es aumentar la resistencia del vehículo y dar más tiempo de reacción.
+          </div>
+        </div>
+
+        <div className="sec" style={{marginTop:22}}>
+          <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:12}}>Próximos pasos</div>
+          <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+            {[
+              ["1","Confirma","Aceptas la cotización y apartas fecha."],
+              ["2","Anticipo","Pagas el 50% para programar el ingreso."],
+              ["3","Inspección","Revisamos y documentamos el vehículo."],
+              ["4","Instalación","Trabajo en taller (2 a 3 semanas)."],
+              ["5","Entrega","Saldo cubierto y entrega del vehículo."],
+            ].map(([n,t,d])=>(
+              <div key={n} style={{flex:"1 1 28%",minWidth:140,border:`1px solid ${SEP}`,borderRadius:10,padding:"10px 12px"}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                  <span style={{width:20,height:20,borderRadius:10,background:INK,color:"#fff",fontSize:11,fontWeight:600,display:"flex",alignItems:"center",justifyContent:"center"}}>{n}</span>
+                  <span style={{fontSize:12.5,fontWeight:600,color:"#111"}}>{t}</span>
+                </div>
+                <div style={{fontSize:10.5,color:"#888",lineHeight:1.45}}>{d}</div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <div className="sec" style={{marginTop:24,paddingTop:18,borderTop:"1px solid #e5e5e3"}}>
           <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:10}}>Notas y condiciones</div>
@@ -621,6 +723,20 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
             <li>Las ilustraciones son referenciales y pueden no coincidir exactamente con el modelo de tu vehículo; la cobertura indicada aplica igual.</li>
             <li>Vigencia de la cotización: 30 días a partir de la fecha de emisión.</li>
           </ol>
+        </div>
+
+        <div className="sec" style={{marginTop:22,padding:"16px 18px",background:"#f7f7f5",borderRadius:12,display:"flex",alignItems:"center",gap:18}}>
+          <img
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=0&data=${encodeURIComponent(`https://wa.me/${WHATSAPP}?text=`+encodeURIComponent(`Hola, quiero proceder con la cotización ${folio}${vehicleStr?` de mi ${vehicleStr}`:""}.`))}`}
+            alt="QR para continuar por WhatsApp"
+            style={{width:96,height:96,flexShrink:0,borderRadius:6,background:"#fff"}}
+          />
+          <div>
+            <div style={{fontSize:13,fontWeight:600,color:"#111",marginBottom:3}}>¿Listo para proceder?</div>
+            <div style={{fontSize:12,color:"#555",lineHeight:1.55}}>
+              Escanea el código con la cámara de tu teléfono y te abrirá un chat de WhatsApp con nosotros, listo para confirmar esta cotización <span style={{fontFamily:"monospace",color:"#333"}}>{folio}</span>.
+            </div>
+          </div>
         </div>
 
         <div style={{marginTop:24,paddingTop:16,borderTop:"1.5px solid #111",display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:20}}>
@@ -647,7 +763,11 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
           <div style={{opacity:.4}}><Logo h={24} variant="negro"/></div>
         </div>
         <div style={{marginTop:16,paddingTop:14,borderTop:"1px solid #e5e5e3",fontSize:11,color:"#bbb",lineHeight:1.6}}>
-          Precios en pesos mexicanos antes de IVA (16%). Vigencia 30 días. Garantía 5 años propietario original: cubre delaminación, burbujeo y defectos de instalación. No cubre accidentes, golpes ni vandalismo. No transferible. Viking by GAV no es blindaje balístico certificado.
+          Precios en pesos mexicanos antes de IVA (16%). Vigencia hasta el {fechaMas(30)}. Garantía 5 años propietario original: cubre delaminación, burbujeo y defectos de instalación. No cubre accidentes, golpes ni vandalismo. No transferible. Viking by GAV no es blindaje balístico certificado.
+        </div>
+        <div style={{marginTop:10,paddingTop:8,borderTop:`1px solid ${SEP}`,display:"flex",justifyContent:"space-between",fontSize:9.5,color:"#c7c7cc",letterSpacing:"0.03em"}}>
+          <span>Viking by GAV Detailing · Cotización {vehicleStr||"—"}</span>
+          <span style={{fontFamily:"monospace"}}>{folio}</span>
         </div>
       </div>
     </div>
