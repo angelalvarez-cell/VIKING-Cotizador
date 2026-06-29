@@ -545,8 +545,6 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
       <div className="np" style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.5rem",paddingBottom:"1rem",borderBottom:`1px solid ${SEP}`,gap:10}}>
         <button onClick={onBack} style={{background:"none",border:"none",fontSize:15,color:MUTED,cursor:"pointer",fontFamily:"inherit",padding:0}}>← Editar</button>
         <div style={{display:"flex",gap:10,alignItems:"center"}}>
-          {saving && <span style={{fontSize:13,color:MUTED}}>Guardando…</span>}
-          {saved && <span style={{fontSize:14,color:"#4d7c0f",fontWeight:500}}>✓ Guardada</span>}
           <button onClick={imprimirYGuardar} style={{padding:"10px 24px",borderRadius:100,background:INK,color:"#fff",border:"none",fontSize:14,cursor:"pointer",fontFamily:"inherit"}}>Imprimir / Guardar PDF</button>
         </div>
       </div>
@@ -818,8 +816,8 @@ function AdminGate({onEnter}){
   const [err,setErr]=useState(false);
   const intentar=()=>{ if(pass===ADMIN_PASS) onEnter(); else setErr(true); };
   if(!open) return (
-    <div style={{textAlign:"center",marginTop:"3rem",paddingTop:"1.5rem",borderTop:`1px solid ${SEP}`}}>
-      <button onClick={()=>setOpen(true)} style={{background:"none",border:"none",fontSize:11,color:"#c7c7cc",cursor:"pointer",fontFamily:"inherit",letterSpacing:"0.08em",textTransform:"uppercase"}}>Admin</button>
+    <div style={{textAlign:"center",marginTop:"4rem",paddingTop:"1rem"}}>
+      <button onClick={()=>setOpen(true)} aria-label="" title="" style={{background:"none",border:"none",fontSize:16,lineHeight:1,color:"#000",opacity:0.12,cursor:"default",fontFamily:"inherit",letterSpacing:"0.15em",padding:"4px 10px"}}>•••</button>
     </div>
   );
   return (
