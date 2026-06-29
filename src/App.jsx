@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 
 // ════════════════════════════════════════════════════════════════════
 //  COTIZADOR VIKING BY GAV — versión producción
@@ -253,7 +253,7 @@ const VIKING_INFO = {
 const WHATSAPP = "523332460342";
 
 // URL del Web App de Google Sheets (pegar la que termina en /exec)
-const SHEETS_URL = "https://script.google.com/macros/s/AKfycbxTRy6IALXTrGoBrZIoM11ofq1VtBp5h2mp62cX4WQB9NxB1eprhh7MsmjII8iolioJ6A/exec";
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbxfGIH87EauXma94CqNSme1p4z3OkYaXoHAxJBrSKGWHHzLYOdhsz47kCxThH4cYS_qag/exec";
 
 // Guarda una cotización en Google Sheets
 async function guardarEnSheets(payload){
@@ -839,6 +839,7 @@ function AdminView({onBack}){
   const [rows,setRows]=useState(null);
   const [err,setErr]=useState("");
   const [loading,setLoading]=useState(true);
+  const [abierta,setAbierta]=useState(null); // índice del renglón expandido
   useEffect(()=>{
     let alive=true;
     (async()=>{
@@ -850,13 +851,15 @@ function AdminView({onBack}){
         const res=await fetch(SHEETS_URL);
         const data=await res.json();
         const list=Array.isArray(data)?data:(data.rows||data.data||[]);
-        if(alive){ setRows(list); setLoading(false); }
+        // Filtra cualquier fila de encabezados que se haya colado
+        const limpio=list.filter(r=>r && String(r.fecha).trim().toLowerCase()!=="fecha" && (r.folio||r.cliente||r.vehiculo));
+        if(alive){ setRows(limpio); setLoading(false); }
       }catch(e){ if(alive){ setErr("No se pudo cargar el historial desde Sheets."); setLoading(false); } }
     })();
     return ()=>{alive=false;};
   },[]);
   return(
-    <div style={{fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",maxWidth:760,margin:"0 auto",padding:"2rem 1rem"}}>
+    <div style={{fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",maxWidth:860,margin:"0 auto",padding:"2rem 1rem"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.5rem",paddingBottom:"1rem",borderBottom:`1px solid ${SEP}`}}>
         <button onClick={onBack} style={{background:"none",border:"none",fontSize:15,color:MUTED,cursor:"pointer",fontFamily:"inherit",padding:0}}>← Volver al cotizador</button>
         <Logo h={40} variant="negro"/>
@@ -868,19 +871,48 @@ function AdminView({onBack}){
       {!loading && !err && rows && rows.length>0 && (
         <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
           <thead><tr style={{borderBottom:"1px solid #ccc",textAlign:"left",color:MUTED}}>
-            {["Fecha","Folio","Cliente","Vehículo","Total","Estado"].map(h=><th key={h} style={{padding:"8px 6px",fontWeight:500,fontSize:11,textTransform:"uppercase",letterSpacing:"0.06em"}}>{h}</th>)}
+            {["Fecha","Folio","Cliente","Vehículo","Total","Estado",""].map((h,i)=><th key={i} style={{padding:"8px 6px",fontWeight:500,fontSize:11,textTransform:"uppercase",letterSpacing:"0.06em"}}>{h}</th>)}
           </tr></thead>
           <tbody>
-            {rows.map((r,i)=>(
-              <tr key={i} style={{borderBottom:`1px solid ${SEP}`}}>
-                <td style={{padding:"8px 6px"}}>{r.fecha||"—"}</td>
-                <td style={{padding:"8px 6px",fontFamily:"monospace"}}>{r.folio||"—"}</td>
-                <td style={{padding:"8px 6px"}}>{r.cliente||"—"}</td>
-                <td style={{padding:"8px 6px"}}>{r.vehiculo||"—"}</td>
-                <td style={{padding:"8px 6px",whiteSpace:"nowrap"}}>{r.total?mxn(Number(r.total)):"—"}</td>
-                <td style={{padding:"8px 6px"}}>{r.estado||"—"}</td>
-              </tr>
-            ))}
+            {rows.map((r,i)=>{
+              const open=abierta===i;
+              return(
+                <Fragment key={i}>
+                  <tr style={{borderBottom:open?"none":`1px solid ${SEP}`}}>
+                    <td style={{padding:"8px 6px"}}>{r.fecha||"—"}</td>
+                    <td style={{padding:"8px 6px",fontFamily:"monospace"}}>{r.folio||"—"}</td>
+                    <td style={{padding:"8px 6px"}}>{r.cliente||"—"}</td>
+                    <td style={{padding:"8px 6px"}}>{r.vehiculo||"—"}</td>
+                    <td style={{padding:"8px 6px",whiteSpace:"nowrap"}}>{r.total!==undefined&&r.total!==""&&!isNaN(Number(r.total))?mxn(Number(r.total)):"—"}</td>
+                    <td style={{padding:"8px 6px"}}>{r.estado||"—"}</td>
+                    <td style={{padding:"8px 6px",textAlign:"right"}}>
+                      <button onClick={()=>setAbierta(open?null:i)} style={{background:"none",border:`1px solid ${SEP}`,borderRadius:8,padding:"4px 10px",fontSize:12,cursor:"pointer",fontFamily:"inherit",color:INK,whiteSpace:"nowrap"}}>{open?"Ocultar":"Ver detalle"}</button>
+                    </td>
+                  </tr>
+                  {open&&(
+                    <tr style={{borderBottom:`1px solid ${SEP}`,background:"#f7f7f5"}}>
+                      <td colSpan={7} style={{padding:"12px 14px"}}>
+                        <div style={{display:"flex",flexWrap:"wrap",gap:"6px 28px",marginBottom:r.zonas?10:0,fontSize:12.5}}>
+                          <span><span style={{color:MUTED}}>Teléfono: </span>{r.telefono||"—"}</span>
+                          <span><span style={{color:MUTED}}>Atendió: </span>{r.atendio||"—"}</span>
+                          <span><span style={{color:MUTED}}>Tipo: </span>{r.tipo||"—"}</span>
+                          <span><span style={{color:MUTED}}>Opciones: </span>{r.opciones||"—"}</span>
+                          <span><span style={{color:MUTED}}>Subtotal: </span>{r.subtotal!==undefined&&r.subtotal!==""&&!isNaN(Number(r.subtotal))?mxn(Number(r.subtotal)):"—"}</span>
+                        </div>
+                        {r.zonas&&(
+                          <div style={{fontSize:12.5,lineHeight:1.6}}>
+                            <span style={{color:MUTED}}>Cotizó: </span>
+                            {String(r.zonas).split("||").map((parte,k)=>(
+                              <div key={k} style={{paddingLeft:8}}>{parte.trim().split(";").join(" · ")}</div>
+                            ))}
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              );
+            })}
           </tbody>
         </table>
       )}
