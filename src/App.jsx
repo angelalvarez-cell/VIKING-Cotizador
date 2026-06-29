@@ -253,7 +253,7 @@ const VIKING_INFO = {
 const WHATSAPP = "523332460342";
 
 // URL del Web App de Google Sheets (pegar la que termina en /exec)
-const SHEETS_URL = "https://script.google.com/a/macros/gavdetailing.com/s/AKfycbwDR4TcSo9qIuGQ72qh0Q7iI9mr0Rw0fqzPcmd8PZPHE97CcF8Ozf_3M9C6lzG-y_VP7g/exec";
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbxTRy6IALXTrGoBrZIoM11ofq1VtBp5h2mp62cX4WQB9NxB1eprhh7MsmjII8iolioJ6A/exec";
 
 // Guarda una cotización en Google Sheets
 async function guardarEnSheets(payload){
