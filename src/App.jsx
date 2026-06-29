@@ -665,12 +665,12 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
             </tr></thead>
             <tbody>
               {[
-                ["Peso agregado","Bajo (decenas de kg)","Muy alto (cientos de kg)"],
-                ["Instalación","Discreta, conserva el interior","Invasiva, suele sustituir piezas"],
-                ["Reversible","Sí, sin alterar la estructura","No, modifica el vehículo"],
-                ["Apariencia","Idéntica a la original","Cambia peso, manejo y look"],
-                ["Inversión","Accesible, por zonas","Mucho mayor"],
-                ["Garantía de fábrica","Se conserva","Suele afectarse"],
+                ["Peso agregado","Decenas de kg, repartido por zonas","Cientos de kg en todo el vehículo"],
+                ["Cristales","Se conservan los originales, reforzados","Se sustituyen por cristales de ~18 mm"],
+                ["Puertas y manejo","Sin afectar puertas ni manejo","Riesgo de ruidos y desajuste de puertas por el peso"],
+                ["Instalación","Discreta y reversible; no altera la estructura","Invasiva; modifica carrocería y piezas"],
+                ["Inversión","Una fracción del costo; eliges por zonas","Cientos de miles de pesos"],
+                ["Tiempo en taller","2 a 3 semanas","Desde ~22 días hábiles"],
               ].map((r,i)=>(
                 <tr key={i} style={{borderBottom:"1px solid #f0f0f0"}}>
                   <td style={{padding:"7px 8px",fontWeight:500,color:"#333"}}>{r[0]}</td>
@@ -683,6 +683,46 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
           <div style={{fontSize:10,color:"#aaa",fontStyle:"italic",marginTop:8,lineHeight:1.5}}>
             Viking es una solución de protección y seguridad; no es un blindaje balístico certificado ni pretende sustituirlo. Su objetivo es aumentar la resistencia del vehículo y dar más tiempo de reacción.
           </div>
+        </div>
+
+        <div className="sec" style={{marginTop:24}}>
+          <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:10}}>Ficha técnica por zona</div>
+          <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+            <thead><tr style={{borderBottom:"1px solid #ccc"}}>
+              {["Zona","Refuerzo","Especificación"].map(h=><th key={h} style={{textAlign:"left",padding:"6px 8px",fontWeight:500,color:"#999",fontSize:10,textTransform:"uppercase",letterSpacing:"0.06em"}}>{h}</th>)}
+            </tr></thead>
+            <tbody>
+              {[
+                ["Vidrios laterales","Vidrio laminado multicapa","+3.5 mm (Viking) · +6.0 mm (Plus, con ceja de acero)"],
+                ["Medallón","Vidrio laminado multicapa","+3.5 mm (Viking) · +6.0 mm (Plus)"],
+                ["Parabrisas","Vidrio laminado multicapa","Sujeto a evaluación previa del cristal"],
+                ["Puertas","Kevlar (fibra de aramida)","9 capas, instalación interior"],
+                ["Postes B · C · D","Kevlar (fibra de aramida)","9 capas, ambos lados"],
+                ["Cajuela","Kevlar (fibra de aramida)","9 capas, instalación interior"],
+                ["Área de carga","Kevlar (fibra de aramida)","9 capas, ambos lados"],
+                ["Techo","Kevlar (fibra de aramida)","9 capas, instalación interior"],
+              ].map((r,i)=>(
+                <tr key={i} style={{borderBottom:"1px solid #f0f0f0"}}>
+                  <td style={{padding:"6px 8px",fontWeight:500,color:"#333"}}>{r[0]}</td>
+                  <td style={{padding:"6px 8px",color:"#444"}}>{r[1]}</td>
+                  <td style={{padding:"6px 8px",color:"#888"}}>{r[2]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div style={{fontSize:10,color:"#aaa",fontStyle:"italic",marginTop:8,lineHeight:1.5}}>
+            Se conservan los vidrios originales del vehículo (se desmontan, procesan y reinstalan). El Kevlar se instala en el interior de los paneles, sin alterar la apariencia.
+          </div>
+        </div>
+
+        <div className="sec" style={{marginTop:22}}>
+          <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:10}}>Garantía</div>
+          <ul style={{margin:0,paddingLeft:18,fontSize:11.5,color:"#555",lineHeight:1.7}}>
+            <li><b>Vidrios reforzados</b> (laterales, medallón y parabrisas): 5 años contra delaminación y burbujeo.</li>
+            <li><b>Kevlar 9 capas</b>: 5 años contra defectos de instalación y de materiales.</li>
+            <li><b>Ajuste y funcionamiento</b>: cubierto contra ruidos o desajuste de puertas y elevadores derivados de la instalación.</li>
+            <li>Aplica para el propietario original; no es transferible. No cubre accidentes, golpes ni vandalismo.</li>
+          </ul>
         </div>
 
         <div className="sec" style={{marginTop:22}}>
@@ -760,7 +800,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
           <div style={{opacity:.4}}><Logo h={24} variant="negro"/></div>
         </div>
         <div style={{marginTop:16,paddingTop:14,borderTop:"1px solid #e5e5e3",fontSize:11,color:"#bbb",lineHeight:1.6}}>
-          Precios en pesos mexicanos antes de IVA (16%). Vigencia hasta el {fechaMas(30)}. Garantía 5 años propietario original: cubre delaminación, burbujeo y defectos de instalación. No cubre accidentes, golpes ni vandalismo. No transferible. Viking by GAV no es blindaje balístico certificado.
+          Precios en pesos mexicanos antes de IVA (16%). Vigencia hasta el {fechaMas(30)}. Viking by GAV es una solución de protección y seguridad; no es un blindaje balístico certificado ni pretende sustituirlo.
         </div>
         <div style={{marginTop:10,paddingTop:8,borderTop:`1px solid ${SEP}`,display:"flex",justifyContent:"space-between",fontSize:9.5,color:"#c7c7cc",letterSpacing:"0.03em"}}>
           <span>Viking by GAV Detailing · Cotización {vehicleStr||"—"}</span>
