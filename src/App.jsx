@@ -224,11 +224,11 @@ function nivelCobertura(o){
   // Sugerencia para subir de nivel
   let sugerencia="";
   if(idx<3){
-    if(kevlar===0) sugerencia="Agrega Kevlar en puertas para subir a Reforzada.";
-    else if(!o.med && o.lat) sugerencia="Suma el medallón para una cobertura de vidrios más completa.";
-    else if(o.lat && o.lat<6 && o.tipo==="camioneta") sugerencia="Amplía a 6 laterales para cubrir también las ventanas traseras.";
-    else if(kevlar<3) sugerencia="Suma más zonas de Kevlar (postes, techo o cajuela) para llegar a Integral.";
-    else sugerencia="Combina vidrios amplios + Kevlar en varias zonas para llegar a Integral.";
+    if(kevlar===0) sugerencia="Tus vidrios ya quedan protegidos; reforzar la carrocería con Kevlar en puertas completa la protección y sube a cobertura Reforzada.";
+    else if(!o.med && o.lat) sugerencia="Sumar el medallón cubre uno de los cristales más expuestos y redondea la protección de vidrios.";
+    else if(o.lat && o.lat<6 && o.tipo==="camioneta") sugerencia="Ampliar a 6 laterales cubre también las ventanas traseras y deja todo el costado protegido.";
+    else if(kevlar<3) sugerencia="Estás a unas zonas de la cobertura Integral: sumar postes, techo o cajuela refuerza los puntos restantes.";
+    else sugerencia="Combinar vidrios amplios con Kevlar en varias zonas lleva el vehículo a protección Integral.";
   }
   return {nivel, idx, sugerencia};
 }
@@ -253,7 +253,7 @@ const VIKING_INFO = {
 const WHATSAPP = "523332460342";
 
 // URL del Web App de Google Sheets (pegar la que termina en /exec)
-const SHEETS_URL = "PEGAR_AQUI_TU_URL_DE_APPS_SCRIPT";
+const SHEETS_URL = "https://script.google.com/a/macros/gavdetailing.com/s/AKfycbwDR4TcSo9qIuGQ72qh0Q7iI9mr0Rw0fqzPcmd8PZPHE97CcF8Ozf_3M9C6lzG-y_VP7g/exec";
 
 // Guarda una cotización en Google Sheets
 async function guardarEnSheets(payload){
