@@ -240,6 +240,11 @@ function fechaMas(dias){
 }
 const today=new Date().toLocaleDateString("es-MX",{day:"numeric",month:"long",year:"numeric"});
 
+// Capitaliza cada palabra respetando acentos: "maría de la cruz" -> "María De La Cruz"
+function capitalizar(s){
+  return String(s||"").toLowerCase().replace(/(^|[\s'’\-])(\p{L})/gu, (m,sep,ch)=>sep+ch.toUpperCase()).trim();
+}
+
 // Datos de contacto de Viking (editar con los reales)
 const VIKING_INFO = {
   tel: "55 0000 0000",
@@ -555,7 +560,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
           <div style={{textAlign:"right"}}><div style={{fontSize:20,fontWeight:500}}>Cotización</div><div style={{fontSize:12,color:"#888",marginTop:3}}>{today}</div><div style={{fontSize:12,color:"#aaa",marginTop:2,fontFamily:"monospace"}}>{folio}</div></div>
         </div>
         <div style={{marginBottom:24,padding:"14px 16px",background:"#f7f7f5",borderRadius:10,display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px 24px"}}>
-          {[["Cliente",name||"—"],["Teléfono",tel||"—"],["Vehículo",vehicleStr||"—"],["Atendido por",asesor||"—"],["Vigencia",`hasta el ${fechaMas(30)}`],["Entrega estimada","~2 a 3 semanas desde el inicio"]].map(([l,v])=>(
+          {[["Cliente",name||"—"],["Teléfono",tel||"—"],["Vehículo",vehicleStr||"—"],["Atendido por",asesor||"—"],["Vigencia",`hasta el ${fechaMas(30)}`],["Entrega estimada","~15 días hábiles desde el inicio"]].map(([l,v])=>(
             <div key={l}><div style={{fontSize:10,color:"#888",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:3}}>{l}</div><div style={{fontSize:14,fontWeight:500}}>{v}</div></div>
           ))}
         </div>
@@ -579,7 +584,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
             <tbody>
               {[
                 ["Grosor agregado","+3.5 mm (≈10 mm total)","+6.0 mm (≈13.5 mm total)"],
-                ["Ceja de acero","No","Sí"],
+                ["Ceja de acero","No","Sí (en laterales)"],
                 ["Acabado","Transparente","Transparente o ahumado 50%"],
                 ["Resistencia a impactos","Alta · vandalismo y golpes moderados","Muy alta · golpes fuertes y repetidos"],
                 ["Uso recomendado","Uso diario y prevención de robos","Máxima protección · autos de alto valor o rutas de riesgo"],
@@ -664,11 +669,12 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
             <tbody>
               {[
                 ["Peso agregado","Decenas de kg, repartido por zonas","Cientos de kg en todo el vehículo"],
-                ["Cristales","Se conservan los originales, reforzados","Se sustituyen por cristales de ~18 mm"],
-                ["Puertas y manejo","Sin afectar puertas ni manejo","Riesgo de ruidos y desajuste de puertas por el peso"],
+                ["Cristales","Conservas tus cristales originales, reforzados por dentro","Se reemplazan por cristales más gruesos y pesados, que obligan a reforzar bisagras y mecanismos"],
+                ["Manejo y desempeño","Sin cambios perceptibles","Se vuelve más pesado y lento"],
+                ["Ajuste de puertas","Conservan su funcionamiento normal","Tienden a rechinar o desajustarse por el peso"],
                 ["Instalación","Discreta y reversible; no altera la estructura","Invasiva; modifica carrocería y piezas"],
                 ["Inversión","Una fracción del costo; eliges por zonas","Cientos de miles de pesos"],
-                ["Tiempo en taller","2 a 3 semanas","Desde ~22 días hábiles"],
+                ["Tiempo en taller","15 días hábiles","Desde ~8 semanas"],
               ].map((r,i)=>(
                 <tr key={i} style={{borderBottom:"1px solid #f0f0f0"}}>
                   <td style={{padding:"7px 8px",fontWeight:500,color:"#333"}}>{r[0]}</td>
@@ -684,32 +690,19 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
         </div>
 
         <div className="sec" style={{marginTop:24}}>
-          <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:10}}>Ficha técnica por zona</div>
-          <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
-            <thead><tr style={{borderBottom:"1px solid #ccc"}}>
-              {["Zona","Refuerzo","Especificación"].map(h=><th key={h} style={{textAlign:"left",padding:"6px 8px",fontWeight:500,color:"#999",fontSize:10,textTransform:"uppercase",letterSpacing:"0.06em"}}>{h}</th>)}
-            </tr></thead>
-            <tbody>
-              {[
-                ["Vidrios laterales","Vidrio laminado multicapa","+3.5 mm (Viking) · +6.0 mm (Plus, con ceja de acero)"],
-                ["Medallón","Vidrio laminado multicapa","+3.5 mm (Viking) · +6.0 mm (Plus)"],
-                ["Parabrisas","Vidrio laminado multicapa","Sujeto a evaluación previa del cristal"],
-                ["Puertas","Kevlar (fibra de aramida)","9 capas, instalación interior"],
-                ["Postes B · C · D","Kevlar (fibra de aramida)","9 capas, ambos lados"],
-                ["Cajuela","Kevlar (fibra de aramida)","9 capas, instalación interior"],
-                ["Área de carga","Kevlar (fibra de aramida)","9 capas, ambos lados"],
-                ["Techo","Kevlar (fibra de aramida)","9 capas, instalación interior"],
-              ].map((r,i)=>(
-                <tr key={i} style={{borderBottom:"1px solid #f0f0f0"}}>
-                  <td style={{padding:"6px 8px",fontWeight:500,color:"#333"}}>{r[0]}</td>
-                  <td style={{padding:"6px 8px",color:"#444"}}>{r[1]}</td>
-                  <td style={{padding:"6px 8px",color:"#888"}}>{r[2]}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div style={{fontSize:10,color:"#aaa",fontStyle:"italic",marginTop:8,lineHeight:1.5}}>
-            Se conservan los vidrios originales del vehículo (se desmontan, procesan y reinstalan). El Kevlar se instala en el interior de los paneles, sin alterar la apariencia.
+          <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:12}}>¿Por qué Viking?</div>
+          <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+            {[
+              ["Invisible","Nadie nota que tu auto está protegido; conserva su apariencia original."],
+              ["No modifica tu auto","Sin alterar estructura, peso ni manejo. Es reversible."],
+              ["A tu medida","Eliges exactamente qué zonas proteger y a qué nivel."],
+              ["Respaldado","5 años de garantía y materiales de alta resistencia."],
+            ].map(([t,d])=>(
+              <div key={t} style={{flex:"1 1 44%",minWidth:200,border:`1px solid ${SEP}`,borderRadius:10,padding:"12px 14px"}}>
+                <div style={{fontSize:13,fontWeight:600,color:"#111",marginBottom:4}}>{t}</div>
+                <div style={{fontSize:11,color:"#888",lineHeight:1.5}}>{d}</div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -730,7 +723,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
               ["1","Confirma","Aceptas la cotización y apartas fecha."],
               ["2","Anticipo","Pagas el 50% para programar el ingreso."],
               ["3","Inspección","Revisamos y documentamos el vehículo."],
-              ["4","Instalación","Trabajo en taller (2 a 3 semanas)."],
+              ["4","Instalación","Trabajo en taller (15 días hábiles)."],
               ["5","Entrega","Saldo cubierto y entrega del vehículo."],
             ].map(([n,t,d])=>(
               <div key={n} style={{flex:"1 1 28%",minWidth:140,border:`1px solid ${SEP}`,borderRadius:10,padding:"10px 12px"}}>
@@ -748,7 +741,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
           <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:10}}>Notas y condiciones</div>
           <ol style={{margin:0,paddingLeft:18,fontSize:11.5,color:"#555",lineHeight:1.7}}>
             <li>Anticipo del 50% del total para iniciar el trabajo; el saldo restante deberá estar cubierto antes de la entrega del vehículo.</li>
-            <li>Tiempo estimado en taller: 2 a 3 semanas hábiles.</li>
+            <li>Tiempo estimado en taller: 15 días hábiles.</li>
             <li>Inspección previa documentada del vehículo antes de iniciar. Cualquier ajuste al alcance se comunica y reconfirma con el cliente.</li>
             <li>El polarizado no está incluido y se cotiza por separado.</li>
             <li>Acabado Viking Plus disponible en transparente o ahumado 50%, a definir con el cliente antes de la instalación.</li>
@@ -921,7 +914,7 @@ function AdminView({onBack}){
 export default function App(){
   const [view,setView]=useState("config");
   const [admin,setAdmin]=useState(false);
-  const [name,setName]=useState(""); const [tel,setTel]=useState(""); const [brand,setBrand]=useState(""); const [model,setModel]=useState(""); const [year,setYear]=useState("");
+  const [nombre,setNombre]=useState(""); const [apellidos,setApellidos]=useState(""); const [tel,setTel]=useState(""); const [brand,setBrand]=useState(""); const [model,setModel]=useState(""); const [year,setYear]=useState("");
   const [asesor,setAsesor]=useState("");
   const [folio]=useState(makeFolio);
   const [opts,setOpts]=useState([blankOpt()]);
@@ -931,6 +924,7 @@ export default function App(){
 
   const models=brand&&BRANDS[brand]?BRANDS[brand]:[];
   const vehicleStr=[brand,model,year].filter(Boolean).join(" ");
+  const cliente=[capitalizar(nombre),capitalizar(apellidos)].filter(Boolean).join(" ");
   const anyFilled=opts.some(o=>buildItems(o).length>0);
   const multi=opts.length>1;
   const curTotal=totals(opts[active]);
@@ -938,7 +932,8 @@ export default function App(){
   // Campos obligatorios para poder ver la cotización
   const faltantes=[];
   if(!asesor) faltantes.push("Atendido por");
-  if(!name.trim()) faltantes.push("Nombre");
+  if(!nombre.trim()) faltantes.push("Nombre(s)");
+  if(!apellidos.trim()) faltantes.push("Apellido(s)");
   if(!tel.trim()) faltantes.push("Teléfono");
   if(!brand) faltantes.push("Marca");
   if(!model) faltantes.push("Modelo");
@@ -963,7 +958,7 @@ export default function App(){
     setActive(a=>Math.max(0,a>=i?a-1:a));
   }
 
-  if(view==="preview") return <div style={{fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",maxWidth:600,margin:"0 auto",padding:"2rem 1rem"}}><PrintView opts={opts} name={name} tel={tel} vehicleStr={vehicleStr} asesor={asesor} folio={folio} onBack={()=>setView("config")}/></div>;
+  if(view==="preview") return <div style={{fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",maxWidth:600,margin:"0 auto",padding:"2rem 1rem"}}><PrintView opts={opts} name={cliente} tel={tel} vehicleStr={vehicleStr} asesor={asesor} folio={folio} onBack={()=>setView("config")}/></div>;
 
   return(
     <div style={{fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",maxWidth:600,margin:"0 auto",padding:"0 1rem 6rem",position:"relative"}}>
@@ -979,7 +974,8 @@ export default function App(){
 
         <div style={{marginBottom:"1.5rem"}}>
           <SHead>Cliente</SHead>
-          <Row first label="Nombre del cliente *" right={<input type="text" value={name} onChange={e=>setName(e.target.value)} placeholder="Nombre completo" style={{padding:"9px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:200}}/>}/>
+          <Row first label="Nombre(s) *" right={<input type="text" value={nombre} onChange={e=>setNombre(e.target.value)} placeholder="Nombre(s)" style={{padding:"9px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:200}}/>}/>
+          <Row label="Apellido(s) *" right={<input type="text" value={apellidos} onChange={e=>setApellidos(e.target.value)} placeholder="Apellido(s)" style={{padding:"9px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:200}}/>}/>
           <Row label="Teléfono *" right={<input type="tel" value={tel} onChange={e=>setTel(e.target.value)} placeholder="55 1234 5678" style={{padding:"9px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:200}}/>}/>
           <Row label="Marca *" right={<Sel value={brand} onChange={v=>{setBrand(v);setModel("");}} w={165}><option value="">Seleccionar</option>{Object.keys(BRANDS).sort().map(b=><option key={b} value={b}>{b}</option>)}</Sel>}/>
           <Row label="Modelo *" right={<Sel value={model} onChange={chooseModel} disabled={!brand} w={165}><option value="">Seleccionar</option>{models.map(m=><option key={m} value={m}>{m}</option>)}</Sel>}/>
