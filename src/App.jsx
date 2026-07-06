@@ -366,13 +366,13 @@ function CarStage({o}){
 
 function buildItems(o){
   const l=[];
-  const grosor=t=>t==="p"?"+6.0 mm con ceja de acero":"+3.5 mm";
+  const grosor=(t,ceja)=>t==="p"?("+6.0 mm"+(ceja?" (ceja de acero en cristales operables)":"")):"+3.5 mm";
   if(o.lat){
     const aletas=o.lat>=4?", aletas incluidas":"";
     const cobertura=o.lat===2?"2 puertas delanteras":o.lat===4?"4 puertas":"4 puertas + 2 ventanas traseras fijas";
-    l.push({code:C.lat[o.lat][o.latT],label:`${o.latT==="p"?"Viking Plus":"Viking"} · ${o.lat} laterales`,desc:`Refuerza ${cobertura} (${o.lat} cristales). ${grosor(o.latT)} sobre el cristal original${aletas}.`,price:P.lat[o.lat][o.latT]});
+    l.push({code:C.lat[o.lat][o.latT],label:`${o.latT==="p"?"Viking Plus":"Viking"} · ${o.lat} laterales`,desc:`Refuerza ${cobertura} (${o.lat} cristales). ${grosor(o.latT,true)} sobre el cristal original${aletas}.`,price:P.lat[o.lat][o.latT]});
   }
-  if(o.med)l.push({code:C.med[o.medT],label:`${o.medT==="p"?"Viking Plus":"Viking"} · Medallón`,desc:`Refuerza el cristal trasero (medallón). ${grosor(o.medT)} sobre el cristal original.`,price:P.med[o.medT]});
+  if(o.med)l.push({code:C.med[o.medT],label:`${o.medT==="p"?"Viking Plus":"Viking"} · Medallón`,desc:`Refuerza el cristal trasero (medallón). ${grosor(o.medT,false)} sobre el cristal original.`,price:P.med[o.medT]});
   if(o.para)l.push({code:C.para,label:"Viking · Parabrisas",desc:"Refuerzo del parabrisas. Sujeto a evaluación previa por la curvatura del cristal.",price:P.para});
   if(o.puertas>0)l.push({code:C.puerta,label:`Kevlar puertas ×${o.puertas}`,desc:`Refuerzo interior de Kevlar de 9 capas en ${o.puertas} ${o.puertas===1?"puerta":"puertas"}. No altera la apariencia.`,price:P.puerta*o.puertas});
   if(o.cajuela)l.push({code:C.cajuela[o.tipo],label:"Kevlar cajuela",desc:"Refuerzo interior de Kevlar de 9 capas en la cajuela.",price:P.cajuela[o.tipo]});
@@ -584,7 +584,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
             <tbody>
               {[
                 ["Grosor agregado","+3.5 mm (≈10 mm total)","+6.0 mm (≈13.5 mm total)"],
-                ["Ceja de acero","No","Sí (en laterales)"],
+                ["Ceja de acero","No","Sí (en laterales operables)"],
                 ["Acabado","Transparente","Transparente o ahumado 50%"],
                 ["Resistencia a impactos","Alta · vandalismo y golpes moderados","Muy alta · golpes fuertes y repetidos"],
                 ["Uso recomendado","Uso diario y prevención de robos","Máxima protección · autos de alto valor o rutas de riesgo"],
@@ -619,10 +619,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
                   {items.map((it,i)=>(
                     <tr key={i} style={{borderBottom:"1px solid #f0f0f0"}}>
                       <td style={{padding:"9px 0",color:"#aaa",fontSize:12,verticalAlign:"top"}}>{it.code}</td>
-                      <td style={{padding:"9px 8px"}}>
-                        <div>{it.label}</div>
-                        {it.desc&&<div style={{fontSize:11,color:"#999",lineHeight:1.45,marginTop:2}}>{it.desc}</div>}
-                      </td>
+                      <td style={{padding:"9px 8px"}}>{it.label}</td>
                       <td style={{padding:"9px 0",textAlign:"right",whiteSpace:"nowrap",verticalAlign:"top"}}>{mxn(it.price)}</td>
                     </tr>
                   ))}
