@@ -281,6 +281,46 @@ function makeFolio(){
 }
 
 const INK="#0a0a0a"; const MUTED="#86868b"; const SEP="rgba(0,0,0,0.07)";
+
+// Normaliza para comparar sin acentos ni mayúsculas
+const norm=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+
+// Campo "ciego": el asesor escribe y solo aparece su coincidencia. Catálogo cerrado.
+function AsesorPicker({value,onChange}){
+  const [q,setQ]=useState(value||"");
+  const [focus,setFocus]=useState(false);
+  const matches = q.trim() ? ATIENDE.filter(a=>norm(a).includes(norm(q))) : [];
+  const exacto = ATIENDE.find(a=>norm(a)===norm(q));
+  function type(v){
+    setQ(v);
+    const m=ATIENDE.find(a=>norm(a)===norm(v));
+    onChange(m||""); // solo queda seleccionado si coincide con un asesor válido
+  }
+  function pick(a){ setQ(a); onChange(a); setFocus(false); }
+  const showList = focus && matches.length>0 && !exacto;
+  return(
+    <div style={{position:"relative",width:200}}>
+      <input
+        type="text" value={q}
+        onChange={e=>type(e.target.value)}
+        onFocus={()=>setFocus(true)}
+        onBlur={()=>setTimeout(()=>setFocus(false),150)}
+        placeholder="Escribe tu nombre"
+        autoComplete="off"
+        style={{width:"100%",padding:"9px 12px",border:`1px solid ${value?"rgba(0,0,0,.12)":"rgba(0,0,0,.12)"}`,borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit"}}
+      />
+      {showList && (
+        <div style={{position:"absolute",top:"calc(100% + 4px)",left:0,right:0,background:"#fff",border:`1px solid ${SEP}`,borderRadius:10,boxShadow:"0 6px 20px rgba(0,0,0,0.10)",zIndex:20,overflow:"hidden"}}>
+          {matches.map(a=>(
+            <div key={a} onMouseDown={()=>pick(a)} style={{padding:"9px 12px",fontSize:14,cursor:"pointer",color:INK}}
+              onMouseEnter={e=>e.currentTarget.style.background="#f5f5f7"}
+              onMouseLeave={e=>e.currentTarget.style.background="#fff"}>{a}</div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 const OPT_NAMES=["Opción A","Opción B","Opción C"];
 const ATIENDE = ["Ángel Álvarez","Carlos García","Carlos Mateos","Javier Fernández","Jesús Landeros"];
 const ADMIN_PASS = "viking2026"; // cambia esto por tu contraseña de admin
@@ -913,7 +953,7 @@ export default function App(){
         </div>
 
         <div style={{marginBottom:"1.5rem"}}>
-          <Row first label="Atendido por *" right={<Sel value={asesor} onChange={setAsesor} w={200}><option value="">Seleccionar</option>{ATIENDE.map(a=><option key={a} value={a}>{a}</option>)}</Sel>}/>
+          <Row first label="Atendido por *" right={<AsesorPicker value={asesor} onChange={setAsesor}/>}/>
         </div>
 
         <div style={{marginBottom:"1.5rem"}}>
