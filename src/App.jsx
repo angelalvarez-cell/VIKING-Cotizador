@@ -204,7 +204,12 @@ const FILE = {
   ov_poste_B:"OV_POSTE_B", ov_poste_C:"OV_POSTE_C", ov_poste_D:"OV_POSTE_D",
   ov_techo:"OV_TECHO", ov_cajuela:"OV_CAJUELA", ov_carga:"OV_CARGA",
 };
-function img(tipo,key){ return `/img/${PREFIJO[tipo]||""}${FILE[key]}.png`; }
+function img(tipo,key){
+  const f=FILE[key];
+  // Camioneta: overlays con OV_ (OV_CAJUELA.png). Sedán/Deportivo: sin OV_ (COCHE_CAJUELA.png).
+  if(tipo==="camioneta"||!PREFIJO[tipo]) return `/img/${f}.png`;
+  return `/img/${PREFIJO[tipo]}${f.replace(/^OV_/,"")}.png`;
+}
 
 // ── Límites de opciones por tipo de carrocería ────────────────────────────
 const LIMITES = {
