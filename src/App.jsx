@@ -571,35 +571,13 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
           <div style={{fontSize:12.5,color:"#444",lineHeight:1.65}}>
             Viking by GAV es un sistema de protección para vehículos que refuerza los puntos más vulnerables del coche. Trabajamos en dos frentes: el refuerzo de los vidrios y el refuerzo de la carrocería con Kevlar de 9 capas en puertas, postes, techo, cajuela y área de carga. Los cristales se transforman en una verdadera armadura que resiste golpes de objetos como martillos, hachas, picos y bats, dando más tiempo de reacción ante un asalto. Todo con una instalación discreta que conserva la apariencia, la funcionalidad y el manejo originales del vehículo.
           </div>
+          <div style={{fontSize:12.5,color:"#444",lineHeight:1.65,marginTop:10}}>
+            Ofrecemos dos niveles de refuerzo de vidrios: <b>Viking</b> (+3.5 mm), ideal para uso diario y prevención de robos; y <b>Viking Plus</b> (+6.0 mm, con ceja de acero en los cristales operables y acabado transparente o ahumado 50%), la máxima protección para autos de alto valor o rutas de riesgo.
+          </div>
         </div>
 
-        <div className="sec" style={{marginBottom:26}}>
-          <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:10}}>Viking vs Viking Plus</div>
-          <table style={{width:"100%",borderCollapse:"collapse",fontSize:12.5}}>
-            <thead><tr>
-              <th style={{textAlign:"left",padding:"6px 8px",fontWeight:500,color:"#999",fontSize:10,textTransform:"uppercase",letterSpacing:"0.06em",borderBottom:"1px solid #ccc"}}>Característica</th>
-              <th style={{textAlign:"left",padding:"6px 8px",fontWeight:600,fontSize:11,borderBottom:"1px solid #ccc",background:"#f7f7f5"}}>Viking</th>
-              <th style={{textAlign:"left",padding:"6px 8px",fontWeight:600,fontSize:11,borderBottom:"1px solid #ccc",background:"#eef2f5"}}>Viking Plus</th>
-            </tr></thead>
-            <tbody>
-              {[
-                ["Grosor agregado","+3.5 mm (≈10 mm total)","+6.0 mm (≈13.5 mm total)"],
-                ["Ceja de acero","No","Sí (en laterales operables)"],
-                ["Acabado","Transparente","Transparente o ahumado 50%"],
-                ["Resistencia a impactos","Alta · vandalismo y golpes moderados","Muy alta · golpes fuertes y repetidos"],
-                ["Uso recomendado","Uso diario y prevención de robos","Máxima protección · autos de alto valor o rutas de riesgo"],
-              ].map((r,i)=>(
-                <tr key={i} style={{borderBottom:"1px solid #f0f0f0"}}>
-                  <td style={{padding:"7px 8px",fontWeight:500,color:"#333"}}>{r[0]}</td>
-                  <td style={{padding:"7px 8px",color:"#444"}}>{r[1]}</td>
-                  <td style={{padding:"7px 8px",color:"#444",background:"#fbfcfd"}}>{r[2]}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div style={{fontSize:10,color:"#aaa",fontStyle:"italic",marginTop:8,lineHeight:1.5}}>
-            Viking aumenta la resistencia del vidrio original y da más tiempo de reacción. No es un blindaje certificado ni lo sustituye. Resultados basados en pruebas internas no certificadas.
-          </div>
+        <div className="sec" style={{marginBottom:20,fontSize:10,color:"#aaa",fontStyle:"italic",lineHeight:1.5}}>
+          Viking aumenta la resistencia del vidrio original y da más tiempo de reacción. No es un blindaje certificado ni lo sustituye. Resultados basados en pruebas internas no certificadas.
         </div>
 
         {active.map((o,idx)=>{
@@ -654,37 +632,6 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
             </div>
           );
         })}
-
-        <div className="sec" style={{marginTop:24,marginBottom:4}}>
-          <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:10}}>Viking vs blindaje tradicional</div>
-          <table style={{width:"100%",borderCollapse:"collapse",fontSize:12.5}}>
-            <thead><tr>
-              <th style={{textAlign:"left",padding:"6px 8px",fontWeight:500,color:"#999",fontSize:10,textTransform:"uppercase",letterSpacing:"0.06em",borderBottom:"1px solid #ccc"}}></th>
-              <th style={{textAlign:"left",padding:"6px 8px",fontWeight:600,fontSize:11,borderBottom:"1px solid #ccc",background:"#eef2f5"}}>Viking by GAV</th>
-              <th style={{textAlign:"left",padding:"6px 8px",fontWeight:600,fontSize:11,borderBottom:"1px solid #ccc",background:"#f7f7f5"}}>Blindaje tradicional</th>
-            </tr></thead>
-            <tbody>
-              {[
-                ["Peso agregado","Decenas de kg, repartido por zonas","Cientos de kg en todo el vehículo"],
-                ["Cristales","Conservas tus cristales originales, reforzados por dentro","Se reemplazan por cristales más gruesos y pesados, que obligan a reforzar bisagras y mecanismos"],
-                ["Manejo y desempeño","Sin cambios perceptibles","Se vuelve más pesado y lento"],
-                ["Ajuste de puertas","Conservan su funcionamiento normal","Tienden a rechinar o desajustarse por el peso"],
-                ["Instalación","Discreta y reversible; no altera la estructura","Invasiva; modifica carrocería y piezas"],
-                ["Inversión","Una fracción del costo; eliges por zonas","Cientos de miles de pesos"],
-                ["Tiempo en taller","15 días hábiles","Desde ~8 semanas"],
-              ].map((r,i)=>(
-                <tr key={i} style={{borderBottom:"1px solid #f0f0f0"}}>
-                  <td style={{padding:"7px 8px",fontWeight:500,color:"#333"}}>{r[0]}</td>
-                  <td style={{padding:"7px 8px",color:"#444",background:"#fbfcfd"}}>{r[1]}</td>
-                  <td style={{padding:"7px 8px",color:"#888"}}>{r[2]}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div style={{fontSize:10,color:"#aaa",fontStyle:"italic",marginTop:8,lineHeight:1.5}}>
-            Viking es una solución de protección y seguridad; no es un blindaje balístico certificado ni pretende sustituirlo. Su objetivo es aumentar la resistencia del vehículo y dar más tiempo de reacción.
-          </div>
-        </div>
 
         <div className="sec" style={{marginTop:24}}>
           <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:12}}>¿Por qué Viking?</div>
