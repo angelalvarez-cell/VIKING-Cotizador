@@ -158,78 +158,27 @@ const CAR_WORDS = ["sedan","sedán","coupe","coupé","cabrio","cabriolet","spide
 function detectTipo(model){
   if(!model) return null;
   const m=" "+model.toLowerCase()+" ";
-  // 0) Deportivo (2 puertas / coupé) — se revisa primero
-  for(const w of DEPORTIVO_WORDS){ if(m.includes(" "+w) || m.includes(w+" ") || m.includes(" "+w+" ")) return "deportivo"; }
   // 1) Camioneta explícita gana (evita falsos positivos como Escalade→ES)
   for(const w of TRUCK_WORDS){ if(m.includes(" "+w) || m.includes(w+" ") || m.includes(" "+w+" ")) return "camioneta"; }
-  // 2) Señal de coche (sedán)
+  // 2) Señal de coche
   for(const w of CAR_WORDS){ if(m.includes(" "+w) || m.includes(w+" ") || m.includes(" "+w+" ")) return "coche"; }
   // 3) Por defecto, camioneta (la mayoría del catálogo Viking)
   return "camioneta";
 }
 
-// Deportivos / coupés de 2 puertas (se detectan antes que sedán)
-const DEPORTIVO_WORDS = ["718","boxster","cayman","911","356","912","930","944 turbo","968","928",
-  "corvette","camaro","challenger","mustang","gt350","gt500","cobra","gr86","gr 86","brz","gr supra","supra","86","mx-5","miata","z4","tt","tt rs","r8",
-  "california","portofino","roma","296 gtb","296 gts","f8","812","gtc4","sf90","daytona sp3","ff","monza",
-  "diablo","aventador","gallardo","murciélago","murcielago","huracán","huracan","countach","revuelto","temerario",
-  "540c","570s","570gt","600lt","620r","720s","750s","765lt","artura","senna","speedtail","elva","p1","gt ",
-  "elise","exige","evora","emira","evija",
-  "amg gt","gt 63 s","gt 43","gt 53","sl 43","sl 55","sl 63","sl 500","sl 550","190 sl","300 sl","slc",
-  "m2","m4","m8","a5 coupé","a5 coupe","e-type","f-type","ghibli coupe","mc20","granturismo","grancabrio",
-  "sp coupe","healey","cts coupe","continental gt"];
-
 const P = {
   lat:{2:{v:54000,p:66000},4:{v:89000,p:99000},6:{v:109000,p:119000}},
   med:{v:25000,p:28000},para:38000,puerta:25000,
-  cajuela:{coche:16000,deportivo:16000,camioneta:20000},poste:{coche:9000,deportivo:9000,camioneta:10000},
-  carga:22000,techo:{coche:12000,deportivo:12000,camioneta:15000},
+  cajuela:{coche:16000,camioneta:20000},poste:{coche:9000,camioneta:10000},
+  carga:22000,techo:{coche:12000,camioneta:15000},
 };
 const C={
   lat:{2:{v:"VK101",p:"VK102"},4:{v:"VK103",p:"VK104"},6:{v:"VK105",p:"VK106"}},
   med:{v:"VK107",p:"VK108"},para:"VK110",puerta:"VK130",
-  cajuela:{coche:"VK131",deportivo:"VK131",camioneta:"VK132"},poste:{coche:"VK133",deportivo:"VK133",camioneta:"VK134"},
-  carga:"VK135",techo:{coche:"VK136",deportivo:"VK136",camioneta:"VK137"},
+  cajuela:{coche:"VK131",camioneta:"VK132"},poste:{coche:"VK133",camioneta:"VK134"},
+  carga:"VK135",techo:{coche:"VK136",camioneta:"VK137"},
 };
 const mxn=n=>"$"+Math.round(n).toLocaleString("es-MX");
-
-// ── Imágenes por tipo de vehículo ─────────────────────────────────────────
-// Camioneta: sin prefijo (BASE_LATERAL.png). Sedán: COCHE_. Deportivo: DEPORTIVO_.
-const PREFIJO = { camioneta:"", coche:"COCHE_", deportivo:"DEPORTIVO_" };
-const FILE = {
-  base_lateral:"BASE_LATERAL", base_frontal:"BASE_FRONTAL", base_trasera:"BASE_TRASERA",
-  ov_parabrisas:"OV_PARABRISAS", ov_medallon:"OV_MEDALLON",
-  ov_ventana_del:"OV_VENTANA_DEL", ov_ventana_tra:"OV_VENTANA_TRA", ov_ventana_fija:"OV_VENTANA_FIJA",
-  ov_puerta_del:"OV_PUERTA_DEL", ov_puerta_tra:"OV_PUERTA_TRA",
-  ov_poste_B:"OV_POSTE_B", ov_poste_C:"OV_POSTE_C", ov_poste_D:"OV_POSTE_D",
-  ov_techo:"OV_TECHO", ov_cajuela:"OV_CAJUELA", ov_carga:"OV_CARGA",
-};
-function img(tipo,key){
-  const f=FILE[key];
-  // Camioneta: overlays con OV_ (OV_CAJUELA.png). Sedán/Deportivo: sin OV_ (COCHE_CAJUELA.png).
-  if(tipo==="camioneta"||!PREFIJO[tipo]) return `/img/${f}.png`;
-  return `/img/${PREFIJO[tipo]}${f.replace(/^OV_/,"")}.png`;
-}
-
-// ── Límites de opciones por tipo de carrocería ────────────────────────────
-const LIMITES = {
-  camioneta:{ latMax:6, puertasMax:4, postes:["B","C","D"], carga:true,  label:"Camioneta / SUV" },
-  coche:    { latMax:4, puertasMax:4, postes:["B","C"],     carga:false, label:"Sedán (4 puertas)" },
-  deportivo:{ latMax:2, puertasMax:2, postes:["B"],         carga:false, label:"Deportivo (2 puertas)" },
-};
-
-// Ajusta una opción a los límites de un tipo (al cambiar tipo o detectar modelo)
-function ajustarPorTipo(o,t){
-  const lim=LIMITES[t]||LIMITES.camioneta;
-  return {
-    ...o, tipo:t,
-    lat: (o.lat && o.lat>lim.latMax) ? lim.latMax : o.lat,
-    puertas: Math.min(o.puertas, lim.puertasMax),
-    posteC: lim.postes.includes("C") ? o.posteC : false,
-    posteD: lim.postes.includes("D") ? o.posteD : false,
-    carga: lim.carga ? o.carga : false,
-  };
-}
 
 // ── Peso aproximado agregado (kg) por zona ────────────────────────────────
 // Cifras de referencia para una camioneta grande; el coche se ajusta a la baja.
@@ -259,7 +208,7 @@ function estPeso(o){
   if(postes>0) w += postes * 2 * W.posteLado;
   if(o.carga && o.tipo==="camioneta") w += W.carga;
   if(o.techo) w += W.techo;
-  if(o.tipo==="coche"||o.tipo==="deportivo") w *= W.cocheFactor;
+  if(o.tipo==="coche") w *= W.cocheFactor;
   return w;
 }
 
@@ -369,24 +318,24 @@ function CarStage({o}){
   const [manual,setManual]=useState(null);
   const view = (manual && available.includes(manual)) ? manual : (available[0] || "lateral");
 
-  const base = view==="frontal"?img(o.tipo,"base_frontal") : view==="trasera"?img(o.tipo,"base_trasera") : img(o.tipo,"base_lateral");
+  const base = view==="frontal"?IMG.base_frontal : view==="trasera"?IMG.base_trasera : IMG.base_lateral;
   const layers=[];
   if(view==="lateral"){
-    if(o.lat>=2) layers.push(img(o.tipo,"ov_ventana_del"));
-    if(o.lat>=4) layers.push(img(o.tipo,"ov_ventana_tra"));
-    if(o.lat>=6) layers.push(img(o.tipo,"ov_ventana_fija"));
-    if(o.puertas>=1) layers.push(img(o.tipo,"ov_puerta_del"));
-    if(o.puertas>=3) layers.push(img(o.tipo,"ov_puerta_tra"));
-    if(o.posteB) layers.push(img(o.tipo,"ov_poste_B"));
-    if(o.posteC) layers.push(img(o.tipo,"ov_poste_C"));
-    if(o.posteD) layers.push(img(o.tipo,"ov_poste_D"));
-    if(o.techo) layers.push(img(o.tipo,"ov_techo"));
-    if(o.carga) layers.push(img(o.tipo,"ov_carga"));
+    if(o.lat>=2) layers.push(IMG.ov_ventana_del);
+    if(o.lat>=4) layers.push(IMG.ov_ventana_tra);
+    if(o.lat>=6) layers.push(IMG.ov_ventana_fija);
+    if(o.puertas>=1) layers.push(IMG.ov_puerta_del);
+    if(o.puertas>=3) layers.push(IMG.ov_puerta_tra);
+    if(o.posteB) layers.push(IMG.ov_poste_B);
+    if(o.posteC) layers.push(IMG.ov_poste_C);
+    if(o.posteD) layers.push(IMG.ov_poste_D);
+    if(o.techo) layers.push(IMG.ov_techo);
+    if(o.carga) layers.push(IMG.ov_carga);
   } else if(view==="frontal"){
-    if(o.para) layers.push(img(o.tipo,"ov_parabrisas"));
+    if(o.para) layers.push(IMG.ov_parabrisas);
   } else if(view==="trasera"){
-    if(o.med) layers.push(img(o.tipo,"ov_medallon"));
-    if(o.cajuela) layers.push(img(o.tipo,"ov_cajuela"));
+    if(o.med) layers.push(IMG.ov_medallon);
+    if(o.cajuela) layers.push(IMG.ov_cajuela);
   }
 
   const layerStyle={position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain"};
@@ -437,24 +386,24 @@ function totals(o){const items=buildItems(o);const sub=items.reduce((s,i)=>s+i.p
 
 // Devuelve las capas (base + overlays) de una vista específica para una opción
 function viewLayers(o,view){
-  const base = view==="frontal"?img(o.tipo,"base_frontal") : view==="trasera"?img(o.tipo,"base_trasera") : img(o.tipo,"base_lateral");
+  const base = view==="frontal"?IMG.base_frontal : view==="trasera"?IMG.base_trasera : IMG.base_lateral;
   const layers=[];
   if(view==="lateral"){
-    if(o.lat>=2) layers.push(img(o.tipo,"ov_ventana_del"));
-    if(o.lat>=4) layers.push(img(o.tipo,"ov_ventana_tra"));
-    if(o.lat>=6) layers.push(img(o.tipo,"ov_ventana_fija"));
-    if(o.puertas>=1) layers.push(img(o.tipo,"ov_puerta_del"));
-    if(o.puertas>=3) layers.push(img(o.tipo,"ov_puerta_tra"));
-    if(o.posteB) layers.push(img(o.tipo,"ov_poste_B"));
-    if(o.posteC) layers.push(img(o.tipo,"ov_poste_C"));
-    if(o.posteD) layers.push(img(o.tipo,"ov_poste_D"));
-    if(o.techo) layers.push(img(o.tipo,"ov_techo"));
-    if(o.carga) layers.push(img(o.tipo,"ov_carga"));
+    if(o.lat>=2) layers.push(IMG.ov_ventana_del);
+    if(o.lat>=4) layers.push(IMG.ov_ventana_tra);
+    if(o.lat>=6) layers.push(IMG.ov_ventana_fija);
+    if(o.puertas>=1) layers.push(IMG.ov_puerta_del);
+    if(o.puertas>=3) layers.push(IMG.ov_puerta_tra);
+    if(o.posteB) layers.push(IMG.ov_poste_B);
+    if(o.posteC) layers.push(IMG.ov_poste_C);
+    if(o.posteD) layers.push(IMG.ov_poste_D);
+    if(o.techo) layers.push(IMG.ov_techo);
+    if(o.carga) layers.push(IMG.ov_carga);
   } else if(view==="frontal"){
-    if(o.para) layers.push(img(o.tipo,"ov_parabrisas"));
+    if(o.para) layers.push(IMG.ov_parabrisas);
   } else if(view==="trasera"){
-    if(o.med) layers.push(img(o.tipo,"ov_medallon"));
-    if(o.cajuela) layers.push(img(o.tipo,"ov_cajuela"));
+    if(o.med) layers.push(IMG.ov_medallon);
+    if(o.cajuela) layers.push(IMG.ov_cajuela);
   }
   return {base,layers};
 }
@@ -511,20 +460,13 @@ function Sel({value,onChange,disabled,children,w}){
 
 function OptionEditor({o,set}){
   const u=(k,v)=>set({...o,[k]:v});
-  const lim=LIMITES[o.tipo]||LIMITES.camioneta;
-  function changeTipo(t){ set(ajustarPorTipo(o,t)); }
+  function changeTipo(t){set({...o,tipo:t,carga:false,lat:(t==="coche"&&o.lat===6)?null:o.lat});}
   return(
     <div>
       <CarStage o={o}/>
       <div style={{marginBottom:"2rem"}}>
         <SHead>Tipo de vehículo</SHead>
-        <Row first label="¿Qué tipo de vehículo es?" sub="Se ajusta solo según el modelo · puedes corregirlo" right={
-          <div style={{display:"flex",gap:6,flexWrap:"wrap",justifyContent:"flex-end"}}>
-            <Pill sm active={o.tipo==="deportivo"} onClick={()=>changeTipo("deportivo")}>Deportivo</Pill>
-            <Pill sm active={o.tipo==="coche"} onClick={()=>changeTipo("coche")}>Sedán</Pill>
-            <Pill sm active={o.tipo==="camioneta"} onClick={()=>changeTipo("camioneta")}>Camioneta</Pill>
-          </div>
-        }/>
+        <Row first label="¿Coche o camioneta / SUV?" sub="Se ajusta solo según el modelo · puedes corregirlo" right={<div style={{display:"flex",gap:8}}><Pill active={o.tipo==="coche"} onClick={()=>changeTipo("coche")}>Coche</Pill><Pill active={o.tipo==="camioneta"} onClick={()=>changeTipo("camioneta")}>Camioneta</Pill></div>}/>
       </div>
       <div style={{marginBottom:"2rem"}}>
         <SHead>Vidrios reforzados</SHead>
@@ -533,8 +475,8 @@ function OptionEditor({o,set}){
             <div style={{display:"flex",gap:6}}>
               <Pill sm active={o.lat===null} onClick={()=>u("lat",null)}>—</Pill>
               <Pill sm active={o.lat===2} onClick={()=>u("lat",2)}>2</Pill>
-              {lim.latMax>=4&&<Pill sm active={o.lat===4} onClick={()=>u("lat",4)}>4</Pill>}
-              {lim.latMax>=6&&<Pill sm active={o.lat===6} onClick={()=>u("lat",6)}>6</Pill>}
+              <Pill sm active={o.lat===4} onClick={()=>u("lat",4)}>4</Pill>
+              {o.tipo==="camioneta"&&<Pill sm active={o.lat===6} onClick={()=>u("lat",6)}>6</Pill>}
             </div>
             {o.lat&&<div style={{display:"flex",gap:6}}><Pill sm active={o.latT==="v"} onClick={()=>u("latT","v")}>Viking</Pill><Pill sm active={o.latT==="p"} onClick={()=>u("latT","p")}>Plus</Pill></div>}
           </div>
@@ -549,16 +491,16 @@ function OptionEditor({o,set}){
       </div>
       <div>
         <SHead>Kevlar 9 capas</SHead>
-        <Row first label="Puertas" sub={`${mxn(P.puerta)} por puerta`} right={<Counter value={o.puertas} onChange={v=>u("puertas",v)} max={lim.puertasMax}/>}/>
+        <Row first label="Puertas" sub={`${mxn(P.puerta)} por puerta`} right={<Counter value={o.puertas} onChange={v=>u("puertas",v)} max={4}/>}/>
         <Row label="Cajuela" sub={mxn(P.cajuela[o.tipo])} right={<Toggle active={o.cajuela} onToggle={()=>u("cajuela",!o.cajuela)}/>}/>
         <Row label="Postes" sub={`${mxn(P.poste[o.tipo])} por poste`} right={
           <div style={{display:"flex",gap:6}}>
-            {lim.postes.includes("B")&&<Pill sm active={o.posteB} onClick={()=>u("posteB",!o.posteB)}>B</Pill>}
-            {lim.postes.includes("C")&&<Pill sm active={o.posteC} onClick={()=>u("posteC",!o.posteC)}>C</Pill>}
-            {lim.postes.includes("D")&&<Pill sm active={o.posteD} onClick={()=>u("posteD",!o.posteD)}>D</Pill>}
+            <Pill sm active={o.posteB} onClick={()=>u("posteB",!o.posteB)}>B</Pill>
+            <Pill sm active={o.posteC} onClick={()=>u("posteC",!o.posteC)}>C</Pill>
+            <Pill sm active={o.posteD} onClick={()=>u("posteD",!o.posteD)}>D</Pill>
           </div>
         }/>
-        {lim.carga&&<Row label="Área de carga" sub={`${mxn(P.carga)} · ambos lados`} right={<Toggle active={o.carga} onToggle={()=>u("carga",!o.carga)}/>}/>}
+        {o.tipo==="camioneta"&&<Row label="Área de carga" sub={`${mxn(P.carga)} · ambos lados`} right={<Toggle active={o.carga} onToggle={()=>u("carga",!o.carga)}/>}/>}
         <Row label="Techo" sub={mxn(P.techo[o.tipo])} right={<Toggle active={o.techo} onToggle={()=>u("techo",!o.techo)}/>}/>
       </div>
     </div>
@@ -947,7 +889,7 @@ export default function App(){
   function chooseModel(m){
     setModel(m);
     const t=detectTipo(m);
-    if(t) setOpts(p=>p.map(o=>ajustarPorTipo(o,t)));
+    if(t) setOpts(p=>p.map(o=>({...o,tipo:t,carga:t==="coche"?false:o.carga,lat:(t==="coche"&&o.lat===6)?null:o.lat})));
   }
   function compareNew(){
     if(opts.length>=3)return;
