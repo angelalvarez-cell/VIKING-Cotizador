@@ -282,7 +282,7 @@ function makeFolio(){
 
 const INK="#0a0a0a"; const MUTED="#86868b"; const SEP="rgba(0,0,0,0.07)";
 const OPT_NAMES=["Opción A","Opción B","Opción C"];
-const ATIENDE = ["Ángel Álvarez","Carlos García","Javier Fernández","Jesús Landeros","Carlos Mateos"];
+const ATIENDE = ["Ángel Álvarez","Carlos García","Carlos Mateos","Javier Fernández","Jesús Landeros"];
 const ADMIN_PASS = "viking2026"; // cambia esto por tu contraseña de admin
 const blankOpt=()=>({tipo:"camioneta",lat:null,latT:"p",med:false,medT:"p",para:false,puertas:0,cajuela:false,posteB:false,posteC:false,posteD:false,carga:false,techo:false});
 
