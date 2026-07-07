@@ -572,7 +572,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
             Viking by GAV es un sistema de protección para vehículos que refuerza los puntos más vulnerables del coche. Trabajamos en dos frentes: el refuerzo de los vidrios y el refuerzo de la carrocería con Kevlar de 9 capas en puertas, postes, techo, cajuela y área de carga. Los cristales se transforman en una verdadera armadura que resiste golpes de objetos como martillos, hachas, picos y bats, dando más tiempo de reacción ante un asalto. Todo con una instalación discreta que conserva la apariencia, la funcionalidad y el manejo originales del vehículo.
           </div>
           <div style={{fontSize:12.5,color:"#444",lineHeight:1.65,marginTop:10}}>
-            Ofrecemos dos niveles de refuerzo de vidrios: <b>Viking</b> (+3.5 mm), ideal para uso diario y prevención de robos; y <b>Viking Plus</b> (+6.0 mm, con ceja de acero en los cristales operables y acabado transparente o ahumado 50%), la máxima protección para autos de alto valor o rutas de riesgo.
+            <b>Viking Plus</b> (+6.0 mm) es nuestro nivel máximo de refuerzo de vidrios: suma una ceja de acero en los cristales operables y acabado transparente o ahumado al 50%.
           </div>
         </div>
 
