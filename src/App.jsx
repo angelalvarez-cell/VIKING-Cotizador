@@ -212,6 +212,17 @@ function estPeso(o){
   return w;
 }
 
+// Días hábiles estimados en taller según el alcance de la opción
+function diasHabiles(o){
+  const todosVidrios = o.lat>=6 && o.med && o.para;   // vidrios completos
+  const hayVidrio = (o.lat>0) || o.med || o.para;
+  let d=0;
+  if(todosVidrios) d=7; else if(hayVidrio) d=5;        // base por vidrios
+  if(o.puertas>=1) d+=4;                                // Kevlar en puertas
+  if(o.posteB||o.posteC||o.posteD||o.carga||o.cajuela||o.techo) d+=3; // Kevlar en carrocería
+  return d;
+}
+
 // Nivel de cobertura aproximado según lo elegido, con sugerencia de mejora (upsell)
 function nivelCobertura(o){
   const vidrios=(o.lat?1:0)+(o.med?1:0)+(o.para?1:0);
@@ -452,25 +463,31 @@ function viewLayers(o,view){
 function QuoteIllustration({o}){
   const views=viewsWithContent(o);
   if(views.length===0) return null;
-  // Tamaño de las ilustraciones en la cotización/PDF. Súbelos o bájalos a tu gusto.
-  const W_LATERAL = 460;  // ancho de la vista lateral
-  const W_OTRA    = 230;  // ancho de frente / atrás
+  const W_LATERAL = 430;  // ancho de la vista lateral
+  const W_OTRA    = 190;  // ancho de frente / atrás
   const imgStyle={position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain"};
+  const Vista=({v})=>{
+    const {base,layers}=viewLayers(o,v);
+    const w = v==="lateral" ? W_LATERAL : W_OTRA;
+    const ar = v==="lateral" ? "16 / 7" : "10 / 11";
+    return(
+      <div style={{position:"relative",width:w,aspectRatio:ar}}>
+        <img src={base} alt="" style={imgStyle}/>
+        {layers.map((s)=><img key={s} src={s} alt="" style={imgStyle}/>)}
+      </div>
+    );
+  };
+  const lateral = views.includes("lateral");
+  const otras = views.filter(v=>v!=="lateral");
   return(
-    <div style={{display:"flex",flexDirection:"column",gap:8,alignItems:"center",marginTop:16}}>
-      {views.map(v=>{
-        const {base,layers}=viewLayers(o,v);
-        const w = v==="lateral" ? W_LATERAL : W_OTRA;
-        // La lateral es ancha y baja; el frente/atrás es más cuadrado.
-        const ar = v==="lateral" ? "16 / 7" : "10 / 11";
-        return(
-          <div key={v} style={{position:"relative",width:w,aspectRatio:ar}}>
-            <img src={base} alt="" style={imgStyle}/>
-            {layers.map((s,i)=><img key={s} src={s} alt="" style={imgStyle}/>)}
-          </div>
-        );
-      })}
-      <div style={{display:"flex",gap:16,justifyContent:"center",alignItems:"center",fontSize:10.5,color:"#888",marginTop:4}}>
+    <div style={{display:"flex",flexDirection:"column",gap:6,alignItems:"center",marginTop:16}}>
+      {lateral && <Vista v="lateral"/>}
+      {otras.length>0 && (
+        <div style={{display:"flex",gap:24,justifyContent:"center",alignItems:"flex-end"}}>
+          {otras.map(v=><Vista key={v} v={v}/>)}
+        </div>
+      )}
+      <div style={{display:"flex",gap:16,justifyContent:"center",alignItems:"center",fontSize:10.5,color:"#666",marginTop:4}}>
         <span style={{display:"flex",alignItems:"center",gap:5}}><svg width="10" height="10" style={{flexShrink:0}}><rect width="10" height="10" rx="2" fill="#c0392b"/></svg>Vidrios reforzados</span>
         <span style={{display:"flex",alignItems:"center",gap:5}}><svg width="10" height="10" style={{flexShrink:0}}><rect width="10" height="10" rx="2" fill="#9acd32"/></svg>Kevlar en carrocería</span>
       </div>
@@ -550,6 +567,9 @@ function OptionEditor({o,set}){
 function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
   const active=opts.filter(o=>buildItems(o).length>0);
   const multi=active.length>1;
+  const diasArr=active.map(diasHabiles);
+  const dMin=diasArr.length?Math.min(...diasArr):0, dMax=diasArr.length?Math.max(...diasArr):0;
+  const diasTxt = dMin===dMax ? `~${dMax} días hábiles` : `~${dMin}–${dMax} días hábiles`;
   const [saving,setSaving]=useState(false);
   const [saved,setSaved]=useState(false);
   const [saveErr,setSaveErr]=useState("");
@@ -579,14 +599,18 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
   }
 
   // Al imprimir: guarda automáticamente en segundo plano y abre el diálogo de impresión.
+  // El título de la página se usa como nombre del PDF (ej. "Cotización Viking VK-260720-8351 · Land Rover Defender 110 2023").
   function imprimirYGuardar(){
     guardar();        // se dispara solo, no bloquea la impresión
+    const prev=document.title;
+    document.title=`Cotización Viking ${folio}${vehicleStr?` · ${vehicleStr}`:""}${name?` · ${name}`:""}`;
     window.print();
+    setTimeout(()=>{document.title=prev;},1000);
   }
 
   return(
     <div>
-      <style>{`@media print{.np{display:none!important}.opt-sec{break-inside:avoid}.sec{break-inside:avoid}}`}</style>
+      <style>{`@media print{.np{display:none!important}.sec{break-inside:avoid}.optcore{break-inside:avoid}.illus{break-inside:avoid}}`}</style>
       <div className="np" style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.5rem",paddingBottom:"1rem",borderBottom:`1px solid ${SEP}`,gap:10}}>
         <button onClick={onBack} style={{background:"none",border:"none",fontSize:15,color:MUTED,cursor:"pointer",fontFamily:"inherit",padding:0}}>← Editar</button>
         <div style={{display:"flex",gap:10,alignItems:"center"}}>
@@ -597,11 +621,11 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
       <div style={{background:"#fff",color:"#111",maxWidth:580}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:22,paddingBottom:18,borderBottom:"1.5px solid #111"}}>
           <Logo h={92} variant="negro"/>
-          <div style={{textAlign:"right"}}><div style={{fontSize:20,fontWeight:500}}>Cotización</div><div style={{fontSize:12,color:"#888",marginTop:3}}>{today}</div><div style={{fontSize:12,color:"#aaa",marginTop:2,fontFamily:"monospace"}}>{folio}</div></div>
+          <div style={{textAlign:"right"}}><div style={{fontSize:20,fontWeight:500}}>Cotización</div><div style={{fontSize:12,color:"#666",marginTop:3}}>{today}</div><div style={{fontSize:12,color:"#888",marginTop:2,fontFamily:"monospace"}}>{folio}</div></div>
         </div>
         <div style={{marginBottom:24,padding:"14px 16px",background:"#f7f7f5",borderRadius:10,display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px 24px"}}>
-          {[["Cliente",name||"—"],["Teléfono",tel||"—"],["Vehículo",vehicleStr||"—"],["Atendido por",asesor||"—"],["Vigencia",`hasta el ${fechaMas(30)}`],["Entrega estimada","~15 días hábiles desde el inicio"]].map(([l,v])=>(
-            <div key={l}><div style={{fontSize:10,color:"#888",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:3}}>{l}</div><div style={{fontSize:14,fontWeight:500}}>{v}</div></div>
+          {[["Cliente",name||"—"],["Teléfono",tel||"—"],["Vehículo",vehicleStr||"—"],["Atendido por",asesor||"—"],["Vigencia",`hasta el ${fechaMas(30)}`],["Entrega estimada",`${diasTxt} desde el inicio`]].map(([l,v])=>(
+            <div key={l}><div style={{fontSize:10,color:"#5b5b60",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:3}}>{l}</div><div style={{fontSize:14,fontWeight:500}}>{v}</div></div>
           ))}
         </div>
         {multi&&<div style={{fontSize:13,color:"#666",marginBottom:18}}>Esta cotización incluye {active.length} opciones de protección para que elijas la que mejor se ajuste a tus necesidades.</div>}
@@ -616,7 +640,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
           </div>
         </div>
 
-        <div className="sec" style={{marginBottom:20,fontSize:10,color:"#aaa",fontStyle:"italic",lineHeight:1.5}}>
+        <div className="sec" style={{marginBottom:20,fontSize:10,color:"#888",fontStyle:"italic",lineHeight:1.5}}>
           Viking aumenta la resistencia del vidrio original y da más tiempo de reacción. No es un blindaje certificado ni lo sustituye. Resultados basados en pruebas internas no certificadas.
         </div>
 
@@ -624,19 +648,20 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
           const {items,sub,iva,total}=totals(o);
           return(
             <div key={idx} className="opt-sec" style={{marginBottom:28}}>
+              <div className="optcore">
               {multi&&<div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
                 <div style={{background:INK,color:"#fff",fontSize:13,fontWeight:500,padding:"4px 14px",borderRadius:100}}>{OPT_NAMES[idx]}</div>
                 <div style={{flex:1,height:1,background:"#e5e5e3"}}/>
-                <div style={{fontSize:13,color:"#888",textTransform:"capitalize"}}>{o.tipo}</div>
+                <div style={{fontSize:13,color:"#555",textTransform:"capitalize"}}>{o.tipo}</div>
               </div>}
               <table style={{width:"100%",borderCollapse:"collapse",fontSize:14}}>
                 <thead><tr style={{borderBottom:"1px solid #ccc"}}>
-                  {["Código","Descripción","Precio"].map((h,i)=><th key={h} style={{textAlign:i===2?"right":"left",padding:"5px 0",fontWeight:500,color:"#999",fontSize:10,textTransform:"uppercase",letterSpacing:"0.06em",...(i===0?{width:64}:{}),...(i===1?{paddingLeft:8}:{})}}>{h}</th>)}
+                  {["Código","Descripción","Precio"].map((h,i)=><th key={h} style={{textAlign:i===2?"right":"left",padding:"5px 0",fontWeight:600,color:"#555",fontSize:10,textTransform:"uppercase",letterSpacing:"0.06em",...(i===0?{width:64}:{}),...(i===1?{paddingLeft:8}:{})}}>{h}</th>)}
                 </tr></thead>
                 <tbody>
                   {items.map((it,i)=>(
                     <tr key={i} style={{borderBottom:"1px solid #f0f0f0"}}>
-                      <td style={{padding:"9px 0",color:"#aaa",fontSize:12,verticalAlign:"top"}}>{it.code}</td>
+                      <td style={{padding:"9px 0",color:"#777",fontSize:12,verticalAlign:"top"}}>{it.code}</td>
                       <td style={{padding:"9px 8px"}}>{it.label}</td>
                       <td style={{padding:"9px 0",textAlign:"right",whiteSpace:"nowrap",verticalAlign:"top"}}>{mxn(it.price)}</td>
                     </tr>
@@ -645,19 +670,22 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
               </table>
               <div style={{display:"flex",justifyContent:"flex-end",marginTop:10}}>
                 <div style={{minWidth:220}}>
-                  <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"#888",marginBottom:5}}><span>Subtotal</span><span>{mxn(sub)}</span></div>
-                  <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"#888",marginBottom:8}}><span>IVA 16%</span><span>{mxn(iva)}</span></div>
+                  <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"#555",marginBottom:5}}><span>Subtotal</span><span>{mxn(sub)}</span></div>
+                  <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"#555",marginBottom:8}}><span>IVA 16%</span><span>{mxn(iva)}</span></div>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",borderTop:"1.5px solid #111",paddingTop:8}}>
                     <span style={{fontSize:14,fontWeight:500}}>{multi?`Total ${OPT_NAMES[idx]}`:"Total con IVA"}</span>
                     <span style={{fontSize:22,fontWeight:500,letterSpacing:"-0.5px"}}>{mxn(total)}</span>
                   </div>
-                  <div style={{display:"flex",justifyContent:"space-between",fontSize:11.5,color:"#999",marginTop:6}}>
+                  <div style={{display:"flex",justifyContent:"space-between",fontSize:11.5,color:"#666",marginTop:6}}>
                     <span>Peso aprox. agregado</span><span>~{Math.round(estPeso(o))} kg</span>
+                  </div>
+                  <div style={{display:"flex",justifyContent:"space-between",fontSize:11.5,color:"#666",marginTop:4}}>
+                    <span>Tiempo estimado en taller</span><span>~{diasHabiles(o)} días hábiles</span>
                   </div>
                   {(()=>{const nc=nivelCobertura(o);return(
                     <div style={{marginTop:8,paddingTop:8,borderTop:"1px solid #f0f0f0"}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8}}>
-                        <span style={{fontSize:11.5,color:"#999"}}>Nivel de cobertura</span>
+                        <span style={{fontSize:11.5,color:"#666"}}>Nivel de cobertura</span>
                         <span style={{display:"flex",gap:4,alignItems:"center"}}>
                           {[1,2,3].map(n=><svg key={n} width="18" height="5" style={{flexShrink:0}}><rect width="18" height="5" rx="2.5" fill={n<=nc.idx?INK:"#e0e0e0"}/></svg>)}
                           <span style={{fontSize:12,fontWeight:600,color:INK,marginLeft:4}}>{nc.nivel}</span>
@@ -668,7 +696,8 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
                   );})()}
                 </div>
               </div>
-              <QuoteIllustration o={o}/>
+              </div>
+              <div className="illus"><QuoteIllustration o={o}/></div>
             </div>
           );
         })}
@@ -707,7 +736,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
               ["1","Confirma","Aceptas la cotización y apartas fecha."],
               ["2","Anticipo","Pagas el 50% para programar el ingreso."],
               ["3","Inspección","Revisamos y documentamos el vehículo."],
-              ["4","Instalación","Trabajo en taller (15 días hábiles)."],
+              ["4","Instalación",`Trabajo en taller (${diasTxt}).`],
               ["5","Entrega","Saldo cubierto y entrega del vehículo."],
             ].map(([n,t,d])=>(
               <div key={n} style={{flex:"1 1 28%",minWidth:140,border:`1px solid ${SEP}`,borderRadius:10,padding:"10px 12px"}}>
@@ -725,7 +754,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
           <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:10}}>Notas y condiciones</div>
           <ol style={{margin:0,paddingLeft:18,fontSize:11.5,color:"#555",lineHeight:1.7}}>
             <li>Anticipo del 50% del total para iniciar el trabajo; el saldo restante deberá estar cubierto antes de la entrega del vehículo.</li>
-            <li>Tiempo estimado en taller: 15 días hábiles.</li>
+            <li>El tiempo estimado en taller se indica en cada opción y depende del alcance del trabajo (vidrios y zonas de Kevlar).</li>
             <li>Inspección previa documentada del vehículo antes de iniciar. Cualquier ajuste al alcance se comunica y reconfirma con el cliente.</li>
             <li>El polarizado no está incluido y se cotiza por separado.</li>
             <li>Acabado Viking Plus disponible en transparente o ahumado 50%, a definir con el cliente antes de la instalación.</li>
@@ -753,7 +782,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
 
         <div style={{marginTop:24,paddingTop:16,borderTop:"1.5px solid #111",display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:20}}>
           <div>
-            <div style={{fontSize:10,color:"#888",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:5}}>Contacto</div>
+            <div style={{fontSize:10,color:"#5b5b60",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:5}}>Contacto</div>
             <div style={{fontSize:12,color:"#444",lineHeight:1.7}}>
               {VIKING_INFO.tel}<br/>
               {VIKING_INFO.correo}<br/>
@@ -762,12 +791,12 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
             </div>
           </div>
           <div style={{flex:"0 0 auto"}}>
-            <div style={{fontSize:10,color:"#888",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:5}}>Datos para depósito</div>
+            <div style={{fontSize:10,color:"#5b5b60",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:5}}>Datos para depósito</div>
             <div style={{fontSize:12,color:"#444",lineHeight:1.7}}>
-              <span style={{color:"#888"}}>Banco</span> BBVA Bancomer<br/>
-              <span style={{color:"#888"}}>Beneficiario</span> GAV Detailing SA de CV<br/>
-              <span style={{color:"#888"}}>Cuenta</span> 0110645915<br/>
-              <span style={{color:"#888"}}>CLABE</span> 012180001106459158
+              <span style={{color:"#5b5b60"}}>Banco</span> BBVA Bancomer<br/>
+              <span style={{color:"#5b5b60"}}>Beneficiario</span> GAV Detailing SA de CV<br/>
+              <span style={{color:"#5b5b60"}}>Cuenta</span> 0110645915<br/>
+              <span style={{color:"#5b5b60"}}>CLABE</span> 012180001106459158
             </div>
           </div>
         </div>
