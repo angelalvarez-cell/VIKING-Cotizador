@@ -56,6 +56,8 @@ const BRANDS = {
   "Infiniti":["Q50","Q50 Sport","Q60","Q60 Red Sport","QX50","QX55","QX60 Pure","QX60 Luxe","QX60 Autograph","QX60","QX80","QX80 Luxe","QX80 Sensory"],
   "Jaguar":["E-Type","E-Pace P250 S","F-Pace","F-Type SVR","XF","XJ"],
   "Jeep":["Cherokee","Cherokee Latitude","Cherokee Limited","Cherokee Laredo","Cherokee Trailhawk","Commander","Compass","Compass Limited","Gladiator Rubicon","Gladiator Sport","Gladiator Mojave","Grand Cherokee","Grand Cherokee Laredo","Grand Cherokee Limited","Grand Cherokee Overland","Grand Cherokee Summit","Grand Cherokee Trailhawk","Grand Cherokee L Laredo","Grand Cherokee L Limited","Grand Cherokee L Overland","Grand Cherokee L Summit","Grand Cherokee 4xe","Grand Wagoneer","Wrangler Sport","Wrangler Sahara","Wrangler Rubicon","Wrangler 4xe"],
+  "Jetour":["T1","T2","T2 i-DM","G700"],
+  "Jetour Soueast":["S06 i-DM","S07","S08 i-DM","S09"],
   "Kia":["Carnival","EV6","Seltos LX","Seltos SX","Sorento","Sportage LX","Sportage SX","Stinger","Telluride SX"],
   "Lamborghini":["Aventador LP 700-4","Aventador S","Aventador SVJ","Aventador Roadster","Countach","Diablo","Gallardo LP 560-4","Gallardo LP 570-4 Superleggera","Huracán EVO","Huracán STO","Huracán Tecnica","Huracán Sterrato","Murciélago LP 640","Murciélago LP 640 Roadster","Revuelto","Urus","Urus S","Urus Performante"],
   "Land Rover":["Defender 90","Defender 110","Defender 130","Discovery","Discovery Sport","Range Rover","Range Rover SE","Range Rover HSE","Range Rover Autobiography","Range Rover SV","Range Rover Evoque","Range Rover Sport","Range Rover Sport SE","Range Rover Sport HSE","Range Rover Sport Dynamic","Range Rover Sport SVR","Range Rover Sport PHEV","Range Rover Velar"],
@@ -118,7 +120,8 @@ const TRUCK_WORDS = ["escalade","suburban","tahoe","yukon","sierra","silverado",
   "atto","tang","song","yuan","seal u","dolphin","shark","grenadier","jimny","vitara","s-cross","bronco",
   "eletre","dbx","gv70","gv80","g70 shooting","qx50","qx55","qx60","qx80",
   "i-pace","e-pace","f-pace","ds7","ds3","duster","koleos","kardian","captur","grand vitara",
-  "rx5","hs","zs ev","mg5 wagon","outlander","l200","npr","hiace","transit","sprinter","crafter","express","savana"];
+  "rx5","hs","zs ev","mg5 wagon","outlander","l200","npr","hiace","transit","sprinter","crafter","express","savana",
+  "jetour","g700","t2 i-dm","soueast","s06 i-dm","s07","s08 i-dm","s09"];
 
 // Señales de COCHE — sedán, coupé, hatch, deportivo, convertible.
 const CAR_WORDS = ["sedan","sedán","coupe","coupé","cabrio","cabriolet","spider","spyder","roadster","convertible","hatch","liftback",
@@ -168,13 +171,13 @@ function detectTipo(model){
 
 const P = {
   lat:{2:{v:54000,p:66000},4:{v:89000,p:99000},6:{v:109000,p:119000}},
-  med:{v:25000,p:28000},para:38000,puerta:25000,
+  med:{v:25000,p:28000},para:38000,quema:{n:22000,p:30000},puerta:25000,
   cajuela:{coche:16000,camioneta:20000},poste:{coche:9000,camioneta:10000},
   carga:22000,techo:{coche:12000,camioneta:15000},
 };
 const C={
   lat:{2:{v:"VK101",p:"VK102"},4:{v:"VK103",p:"VK104"},6:{v:"VK105",p:"VK106"}},
-  med:{v:"VK107",p:"VK108"},para:"VK110",puerta:"VK130",
+  med:{v:"VK107",p:"VK108"},para:"VK110",quema:{n:"VK111",p:"VK112"},puerta:"VK130",
   cajuela:{coche:"VK131",camioneta:"VK132"},poste:{coche:"VK133",camioneta:"VK134"},
   carga:"VK135",techo:{coche:"VK136",camioneta:"VK137"},
 };
@@ -187,6 +190,8 @@ const W = {
   lateral: 3.0,   // por cristal lateral (Viking Plus)
   medallon: 3.0,  // medallón (Viking Plus)
   parabrisas: 5.0,
+  quemaN: 4.0,    // quemacocos normal (Viking Plus)
+  quemaP: 6.0,    // quemacocos panorámico (más grande)
   vikingFactor: 0.6,  // Viking (3.5 mm) pesa ~60% del Plus (6.0 mm)
   puerta: 2.5,    // Kevlar por puerta
   cajuela: 4.0,
@@ -202,6 +207,8 @@ function estPeso(o){
   if(o.lat) w += o.lat * W.lateral * (o.latT==="p"?1:W.vikingFactor);
   if(o.med) w += W.medallon * (o.medT==="p"?1:W.vikingFactor);
   if(o.para) w += W.parabrisas;
+  if(o.quema==="n") w += W.quemaN;
+  if(o.quema==="p") w += W.quemaP;
   if(o.puertas>0) w += o.puertas * W.puerta;
   if(o.cajuela) w += W.cajuela;
   const postes=[o.posteB,o.posteC,o.posteD].filter(Boolean).length;
@@ -215,7 +222,7 @@ function estPeso(o){
 // Días hábiles estimados en taller según el alcance de la opción
 function diasHabiles(o){
   const todosVidrios = o.lat>=6 && o.med && o.para;   // vidrios completos
-  const hayVidrio = (o.lat>0) || o.med || o.para;
+  const hayVidrio = (o.lat>0) || o.med || o.para || !!o.quema;
   let d=0;
   if(todosVidrios) d=7; else if(hayVidrio) d=5;        // base por vidrios
   if(o.puertas>=1) d+=4;                                // Kevlar en puertas
@@ -225,7 +232,7 @@ function diasHabiles(o){
 
 // Nivel de cobertura aproximado según lo elegido, con sugerencia de mejora (upsell)
 function nivelCobertura(o){
-  const vidrios=(o.lat?1:0)+(o.med?1:0)+(o.para?1:0);
+  const vidrios=(o.lat?1:0)+(o.med?1:0)+(o.para?1:0)+(o.quema?1:0);
   const kevlar=(o.puertas>0?1:0)+(o.cajuela?1:0)+((o.posteB||o.posteC||o.posteD)?1:0)+((o.carga&&o.tipo==="camioneta")?1:0)+(o.techo?1:0);
   const vidriosAmplio = o.lat===6 || (o.lat>=4 && o.med);
   let nivel, idx;
@@ -333,9 +340,9 @@ function AsesorPicker({value,onChange}){
   );
 }
 const OPT_NAMES=["Opción A","Opción B","Opción C"];
-const ATIENDE = ["Ángel Álvarez","Carlos García","Carlos Mateos","Javier Fernández","Jesús Landeros"];
+const ATIENDE = ["Ángel Álvarez","Bruno Balcázar","Carlos García","Carlos Mateos","Efrén Canto","Javier Fernández","Jesús Landeros","Julio de Botton","Miguel Ángel Chain"];
 const ADMIN_PASS = "viking2026"; // cambia esto por tu contraseña de admin
-const blankOpt=()=>({tipo:"camioneta",lat:null,latT:"p",med:false,medT:"p",para:false,puertas:0,cajuela:false,posteB:false,posteC:false,posteD:false,carga:false,techo:false});
+const blankOpt=()=>({tipo:"camioneta",lat:null,latT:"p",med:false,medT:"p",para:false,quema:null,puertas:0,cajuela:false,posteB:false,posteC:false,posteD:false,carga:false,techo:false});
 
 function Shield({size=34,color="currentColor"}){
   return(
@@ -425,6 +432,8 @@ function buildItems(o){
   }
   if(o.med)l.push({code:C.med[o.medT],label:`${o.medT==="p"?"Viking Plus":"Viking"} · Medallón`,desc:`Refuerza el cristal trasero (medallón). ${grosor(o.medT,false)} sobre el cristal original.`,price:P.med[o.medT]});
   if(o.para)l.push({code:C.para,label:"Viking · Parabrisas",desc:"Refuerzo del parabrisas. Sujeto a evaluación previa por la curvatura del cristal.",price:P.para});
+  if(o.quema==="n")l.push({code:C.quema.n,label:"Viking Plus · Quemacocos",desc:"Refuerzo del quemacocos. Sujeto a evaluación previa del cristal.",price:P.quema.n});
+  if(o.quema==="p")l.push({code:C.quema.p,label:"Viking Plus · Quemacocos panorámico",desc:"Refuerzo del quemacocos panorámico. Sujeto a evaluación previa por su tamaño y curvatura.",price:P.quema.p});
   if(o.puertas>0)l.push({code:C.puerta,label:`Kevlar puertas ×${o.puertas}`,desc:`Refuerzo interior de Kevlar de 9 capas en ${o.puertas} ${o.puertas===1?"puerta":"puertas"}. No altera la apariencia.`,price:P.puerta*o.puertas});
   if(o.cajuela)l.push({code:C.cajuela[o.tipo],label:"Kevlar cajuela",desc:"Refuerzo interior de Kevlar de 9 capas en la cajuela.",price:P.cajuela[o.tipo]});
   const postesList=[o.posteB&&"B",o.posteC&&"C",o.posteD&&"D"].filter(Boolean);
@@ -545,6 +554,13 @@ function OptionEditor({o,set}){
           </div>
         }/>
         <Row label="Parabrisas" sub="Requiere evaluación previa" right={<Toggle active={o.para} onToggle={()=>u("para",!o.para)}/>}/>
+        <Row label="Quemacocos" sub={o.quema==="n"?`${mxn(P.quema.n)} + IVA`:o.quema==="p"?`${mxn(P.quema.p)} + IVA`:"Sujeto a evaluación"} right={
+          <div style={{display:"flex",gap:6}}>
+            <Pill sm active={!o.quema} onClick={()=>u("quema",null)}>—</Pill>
+            <Pill sm active={o.quema==="n"} onClick={()=>u("quema","n")}>Normal</Pill>
+            <Pill sm active={o.quema==="p"} onClick={()=>u("quema","p")}>Panorámico</Pill>
+          </div>
+        }/>
       </div>
       <div>
         <SHead>Kevlar 9 capas</SHead>
