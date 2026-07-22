@@ -539,10 +539,9 @@ function OptionEditor({o,set}){
         <Row first label="Laterales" sub={o.lat?`${mxn(P.lat[o.lat][o.latT])} + IVA`:"Elige cobertura"} right={
           <div style={{display:"flex",flexDirection:"column",gap:8,alignItems:"flex-end"}}>
             <div style={{display:"flex",gap:6}}>
-              <Pill sm active={o.lat===null} onClick={()=>u("lat",null)}>—</Pill>
-              <Pill sm active={o.lat===2} onClick={()=>u("lat",2)}>2</Pill>
-              <Pill sm active={o.lat===4} onClick={()=>u("lat",4)}>4</Pill>
-              {o.tipo==="camioneta"&&<Pill sm active={o.lat===6} onClick={()=>u("lat",6)}>6</Pill>}
+              <Pill sm active={o.lat===2} onClick={()=>u("lat",o.lat===2?null:2)}>2</Pill>
+              <Pill sm active={o.lat===4} onClick={()=>u("lat",o.lat===4?null:4)}>4</Pill>
+              {o.tipo==="camioneta"&&<Pill sm active={o.lat===6} onClick={()=>u("lat",o.lat===6?null:6)}>6</Pill>}
             </div>
             {o.lat&&<div style={{display:"flex",gap:6}}><Pill sm active={o.latT==="v"} onClick={()=>u("latT","v")}>Viking</Pill><Pill sm active={o.latT==="p"} onClick={()=>u("latT","p")}>Plus</Pill></div>}
           </div>
@@ -556,9 +555,8 @@ function OptionEditor({o,set}){
         <Row label="Parabrisas" sub="Requiere evaluación previa" right={<Toggle active={o.para} onToggle={()=>u("para",!o.para)}/>}/>
         <Row label="Quemacocos" sub={o.quema==="n"?`${mxn(P.quema.n)} + IVA`:o.quema==="p"?`${mxn(P.quema.p)} + IVA`:"Sujeto a evaluación"} right={
           <div style={{display:"flex",gap:6}}>
-            <Pill sm active={!o.quema} onClick={()=>u("quema",null)}>—</Pill>
-            <Pill sm active={o.quema==="n"} onClick={()=>u("quema","n")}>Normal</Pill>
-            <Pill sm active={o.quema==="p"} onClick={()=>u("quema","p")}>Panorámico</Pill>
+            <Pill sm active={o.quema==="n"} onClick={()=>u("quema",o.quema==="n"?null:"n")}>Normal</Pill>
+            <Pill sm active={o.quema==="p"} onClick={()=>u("quema",o.quema==="p"?null:"p")}>Panorámico</Pill>
           </div>
         }/>
       </div>
