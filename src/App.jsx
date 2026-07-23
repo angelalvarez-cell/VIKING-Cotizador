@@ -86,7 +86,6 @@ const BRANDS = {
   "Toyota":["4Runner TRD Pro","Camry","Corolla","GR86","Highlander XLE","Highlander Hybrid","Hilux","Land Cruiser","Land Cruiser Prado","Prius LE","Prius Prime","RAV4 LE","RAV4 XLE","RAV4 Hybrid","Sequoia","Sienna LE","Sienna Platinum","Tacoma SR","Tacoma Limited","Tundra"],
   "Volkswagen":["Amarok Comfortline","Amarok Highline","Amarok Panamericana","Atlas Cross Sport Comfortline","Atlas Cross Sport Highline","Golf GTI","Golf R","Jetta Trendline","Jetta Comfortline","Jetta Highline","Jetta GLI","T-Roc","Taos","Teramont Trendline","Teramont Comfortline","Teramont Highline","Tiguan Trendline","Tiguan Comfortline","Tiguan Highline","Tiguan R-Line","Touareg"],
   "Volvo":["C40","S60","S90","V60","XC40","XC60","XC90"],
-  "Otro":["Otro modelo"],
 };
 const YEARS = Array.from({length:14},(_,i)=>2026-i);
 
