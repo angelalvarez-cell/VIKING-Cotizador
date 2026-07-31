@@ -42,6 +42,8 @@ const BRANDS = {
   "Buick":["Enclave","Enclave Avenir","Encore","Envision"],
   "BYD":["Atto 3 EV","Dolphin","Dolphin Mini","Han EV","Seal","Seal U","Song Plus DM-i","Shark Pick Up","Tang EV","Yuan Plus","King DM-i"],
   "Cadillac":["CT4","CT5","CTS Coupe","Escalade","Escalade Premium Luxury","Escalade ESV","Escalade ESV-V","Lyriq","XT4","XT5","XT6"],
+  "Changan":["Alsvin","Alsvin Plus","Eado Plus","CS35 Plus","CS35 Max","CS55 Plus","CS75 Plus","CS75 Pro","CS95 Plus","UNI-K","Hunter","Hunter E"],
+  "Changan Deepal":["S05","S07","G318"],
   "Chevrolet":["Blazer","Camaro","Captiva","Colorado","Equinox","Silverado 1500","Silverado 1500 High Country","Silverado 2500","Suburban LS","Suburban LT","Suburban Premier","Suburban High Country","Tahoe LS","Tahoe LT","Tahoe Premier","Tahoe High Country","Traverse","Trailblazer","Trax"],
   "Cupra":["Ateca","Formentor","León","Tavascan"],
   "Dodge":["Attitude SE","Charger","Challenger","Durango GT","Durango R/T","Durango SRT"],
@@ -155,6 +157,7 @@ const CAR_WORDS = ["sedan","sedán","coupe","coupé","cabrio","cabriolet","spide
   "model 3","model s","fiat 500","sp coupe","healey",
   "camry","corolla","gr86","gr supra","prius","yaris","avalon","86",
   "golf","jetta","passat","polo","virtus","vento",
+  "alsvin","eado",
   "s60","s90","v60","mg5"];
 
 function detectTipo(model){
