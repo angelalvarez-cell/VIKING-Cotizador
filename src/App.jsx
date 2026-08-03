@@ -112,7 +112,7 @@ const YEARS = Array.from({length:14},(_,i)=>2026-i);
 const TRUCK_WORDS = ["escalade","suburban","tahoe","yukon","sierra","silverado","colorado","canyon","hummer",
   "cayenne","macan","urus","bentayga","dbx","purosangue","levante","grecale",
   "range rover","defender","discovery","velar","evoque","grenadier",
-  "x1","x2","x3","x4","x5","x6","x7","ix","gla","glb","glc","gle","gls","g 500","g 550","g 63","g-class","eqb","eqc","eqe suv","eqs suv",
+  "x1","x2","x3","x4","x5","x6","x7","gla","glb","glc","gle","gls","g 500","g 550","g 63","g-class","eqb","eqc","eqe suv","eqs suv",
   "q2","q3","q4","q5","q7","q8","e-tron","sq5","sq7","sq8","rs q",
   "rx","nx","gx","lx","ux","qx","mdx","rdx",
   "explorer","expedition","bronco","escape","edge","maverick","f-150","f-250","ranger","f150","f250",
@@ -130,11 +130,11 @@ const TRUCK_WORDS = ["escalade","suburban","tahoe","yukon","sierra","silverado",
   "model x","model y","cybertruck","r1s","r1t","grand wagoneer",
   "navigator","aviator","corsair","nautilus","enclave","encore","envision","lyriq","xt4","xt5","xt6","acadia","terrain",
   "ateca","tarraco","arona","formentor","tavascan","kodiaq","karoq",
-  "atto","tang","song","yuan","seal u","dolphin","shark","grenadier","jimny","vitara","s-cross","bronco",
+  "atto","tang ev","song","yuan","seal u","dolphin","shark","grenadier","jimny","vitara","s-cross","bronco",
   "eletre","dbx","gv70","gv80","g70 shooting","qx50","qx55","qx60","qx80",
   "i-pace","e-pace","f-pace","ds7","ds3","duster","koleos","kardian","captur","grand vitara",
   "rx5","hs","zs ev","mg5 wagon","outlander","l200","npr","hiace","transit","sprinter","crafter","express","savana",
-  "jetour","g700","t2 i-dm","soueast","s06 i-dm","s07","s08 i-dm","s09","cityray"];
+  "jetour","g700","t2 i-dm","soueast","s06 i-dm","s07","s08 i-dm","s09","cityray","corolla cross","5008"];
 
 // Señales de COCHE — sedán, coupé, hatch, deportivo, convertible.
 const CAR_WORDS = ["sedan","sedán","coupe","coupé","cabrio","cabriolet","spider","spyder","roadster","convertible","hatch","liftback",
