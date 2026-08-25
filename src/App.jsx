@@ -52,6 +52,7 @@ const BRANDS = {
   "Ford":["Bronco","Bronco Sport","Edge","Escape","Expedition XLT","Expedition Limited","Expedition Platinum","Expedition Max","Explorer XLT","Explorer Limited","Explorer ST","Explorer Platinum","F-150","F-150 Lariat","F-150 Raptor","F-150 Platinum","F-250","Maverick","Maverick Lariat","Maverick XLT","Mustang","Mustang GT","Mustang Mach-E","Mustang Shelby GT500","Ranger","Ranger Lariat","Ranger Raptor","Territory"],
   "Genesis":["G70","G80","G90","GV60","GV70","GV80"],
   "GMC":["Acadia","Canyon","Hummer EV SUV","Hummer EV Pickup","Sierra 1500","Sierra 1500 AT4","Sierra 1500 Denali","Sierra 2500","Sierra 2500 Denali","Terrain","Yukon SLE","Yukon SLT","Yukon AT4","Yukon Denali","Yukon Denali Ultimate","Yukon XL","Yukon XL Denali"],
+  "GAC":["Emkoo","Emzoom","GS3","GS8","Empow"],
   "Honda":["Accord","BR-V","City","Civic","Civic Type R","CR-V","HR-V","Passport","Pilot EX-L","Pilot","Ridgeline","ZR-V"],
   "Hyundai":["Accent","Bayon","Creta","Elantra","Grand i10","Ioniq 5","Ioniq 6","Kona","Palisade","Santa Fe","Stargazer","Tucson","Venue"],
   "Ineos":["Grenadier","Grenadier Quartermaster"],
@@ -134,7 +135,7 @@ const TRUCK_WORDS = ["escalade","suburban","tahoe","yukon","sierra","silverado",
   "eletre","dbx","gv70","gv80","g70 shooting","qx50","qx55","qx60","qx80",
   "i-pace","e-pace","f-pace","ds7","ds3","duster","koleos","kardian","captur","grand vitara",
   "rx5","hs","zs ev","mg5 wagon","outlander","l200","npr","hiace","transit","sprinter","crafter","express","savana",
-  "jetour","g700","t2 i-dm","soueast","s06 i-dm","s07","s08 i-dm","s09","cityray","corolla cross","5008","gv60"];
+  "jetour","g700","t2 i-dm","soueast","s06 i-dm","s07","s08 i-dm","s09","cityray","corolla cross","5008","gv60","gs3","gs8","emkoo","emzoom"];
 
 // Señales de COCHE — sedán, coupé, hatch, deportivo, convertible.
 const CAR_WORDS = ["sedan","sedán","coupe","coupé","cabrio","cabriolet","spider","spyder","roadster","convertible","hatch","liftback",
@@ -173,7 +174,7 @@ const CAR_WORDS = ["sedan","sedán","coupe","coupé","cabrio","cabriolet","spide
   "s60","s90","v60","mg5",
   "march","rio","forte","k3","k5","argo","emgrand","o5","grand i10","208","408",
   "giulia","db11","db12","dbs","vantage","vanquish","continental gt","flying spur","ghost","phantom","wraith","dawn","spectre",
-  "mg3","mg4","mg7","cyberster","kwid","stepway","g90","temerario"];
+  "mg3","mg4","mg7","cyberster","kwid","stepway","g90","temerario","empow"];
 
 function detectTipo(model){
   if(!model) return null;
