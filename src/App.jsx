@@ -1,10 +1,10 @@
-import { useState, useEffect, Fragment } from "react";
-
+port { useState, useEffect, Fragment } from "react";
+ 
 // ════════════════════════════════════════════════════════════════════
 //  COTIZADOR VIKING BY GAV — versión producción
 //  Las imágenes van en /public/img/ y se llaman por ruta local.
 // ════════════════════════════════════════════════════════════════════
-
+ 
 const IMG = {
   logo_negro:      "/img/LOGO_VIKING_NEGRO.png",
   logo_blanco:     "/img/LOGO_VIKING_BLANCO.png",
@@ -25,7 +25,7 @@ const IMG = {
   ov_cajuela:      "/img/OV_CAJUELA.png",
   ov_carga:        "/img/OV_CARGA.png",
 };
-
+ 
 // Logo Viking real. Si la imagen no carga, cae al escudo SVG dibujado.
 function Logo({h=40,variant="negro"}){
   const [failed,setFailed]=useState(false);
@@ -33,7 +33,7 @@ function Logo({h=40,variant="negro"}){
   if(failed) return <Shield size={h*0.9} color={variant==="blanco"?"#fff":"#0a0a0a"}/>;
   return <img src={src} alt="Viking by GAV" onError={()=>setFailed(true)} style={{height:h,width:"auto",objectFit:"contain"}}/>;
 }
-
+ 
 const BRANDS = {
   "Acura":["ADX","MDX Base","MDX A-Spec","RDX","TLX","Integra"],
   "Audi":["A1","A1 S Line","A3","A3 Sedan","A4","A4 Allroad","A5 Coupé","A5 Sportback","A6","A6 Allroad","A7","A8","A8 L","S3","S4 Sedan","S5","S6 Sedan","S7","S8","RS3","RS5","RS6 Avant","RS7","RS Q3","RS Q8","SQ5","SQ7","SQ8","Q2","Q3","Q4 e-tron","Q5","Q5 Elite","Q5 Sportback","Q6 e-tron","SQ6 e-tron","Q7","Q8","Q8 e-tron","e-tron SUV","e-tron GT","RS e-tron GT","R8 V10","R8 V10 Performance","TT","TT RS"],
@@ -59,7 +59,7 @@ const BRANDS = {
   "Infiniti":["Q50","Q50 Sport","Q60","Q60 Red Sport","QX50","QX55","QX60 Pure","QX60 Luxe","QX60 Autograph","QX60","QX80","QX80 Luxe","QX80 Sensory"],
   "Jaguar":["E-Type","E-Pace","E-Pace P250 S","F-Pace","F-Type","F-Type SVR","XF","XJ"],
   "Jeep":["Cherokee","Cherokee Latitude","Cherokee Limited","Cherokee Laredo","Cherokee Trailhawk","Commander","Compass","Compass Limited","Gladiator Rubicon","Gladiator Sport","Gladiator Mojave","Grand Cherokee","Grand Cherokee Laredo","Grand Cherokee Limited","Grand Cherokee Overland","Grand Cherokee Summit","Grand Cherokee Trailhawk","Grand Cherokee L Laredo","Grand Cherokee L Limited","Grand Cherokee L Overland","Grand Cherokee L Summit","Grand Cherokee 4xe","Grand Wagoneer","Renegade","Wrangler Sport","Wrangler Sahara","Wrangler Rubicon","Wrangler 4xe"],
-  "Jetour":["T1","T2","T2 i-DM","G700"],
+  "Jetour":["Dashing","T1","T1 i-DM","T2","T2 i-DM","G700"],
   "Jetour Soueast":["S06 i-DM","S07","S08 i-DM","S09"],
   "Kia":["Carens","Carnival","EV6","EV9","Forte","K3","K4","K5","Niro","Rio","Seltos LX","Seltos SX","Sorento","Soul","Sportage LX","Sportage SX","Stinger","Telluride SX"],
   "Lamborghini":["Aventador LP 700-4","Aventador S","Aventador SVJ","Aventador Roadster","Countach","Diablo","Gallardo LP 560-4","Gallardo LP 570-4 Superleggera","Huracán EVO","Huracán STO","Huracán Tecnica","Huracán Sterrato","Murciélago LP 640","Murciélago LP 640 Roadster","Revuelto","Temerario","Urus","Urus S","Urus Performante"],
@@ -103,12 +103,12 @@ const BRANDS = {
   "Zeekr":["Zeekr X","Zeekr 001","Zeekr 7X","Zeekr 009"],
 };
 const YEARS = Array.from({length:14},(_,i)=>2026-i);
-
+ 
 // ── Detección coche vs camioneta ──────────────────────────────────────────
 // Estrategia: primero descartamos SUVs/pickups/vans explícitas (gana camioneta),
 // luego buscamos señales de coche por palabra. Evita falsos positivos por substring
 // (ej. "Escalade" contiene "ES" pero NO es coche).
-
+ 
 // SUVs, pickups y vans comunes — si el modelo contiene alguna, es CAMIONETA.
 const TRUCK_WORDS = ["escalade","suburban","tahoe","yukon","sierra","silverado","colorado","canyon","hummer",
   "cayenne","macan","urus","bentayga","dbx","purosangue","levante","grecale",
@@ -136,7 +136,7 @@ const TRUCK_WORDS = ["escalade","suburban","tahoe","yukon","sierra","silverado",
   "i-pace","e-pace","f-pace","ds7","ds3","duster","koleos","kardian","captur","grand vitara",
   "rx5","hs","zs ev","mg5 wagon","outlander","l200","npr","hiace","transit","sprinter","crafter","express","savana",
   "jetour","g700","t2 i-dm","soueast","s06 i-dm","s07","s08 i-dm","s09","cityray","corolla cross","5008","gv60","gs3","gs8","emkoo","emzoom"];
-
+ 
 // Señales de COCHE — sedán, coupé, hatch, deportivo, convertible.
 const CAR_WORDS = ["sedan","sedán","coupe","coupé","cabrio","cabriolet","spider","spyder","roadster","convertible","hatch","liftback",
   "a1","a3","a4","a5","a6","a7","a8","s3","s4","s5","s6","s7","s8","rs3","rs5","rs6","rs7","r8","tt",
@@ -175,7 +175,7 @@ const CAR_WORDS = ["sedan","sedán","coupe","coupé","cabrio","cabriolet","spide
   "march","rio","forte","k3","k5","k4","argo","emgrand","o5","grand i10","208","408","gt-r",
   "giulia","db11","db12","dbs","vantage","vanquish","continental gt","flying spur","ghost","phantom","wraith","dawn","spectre",
   "mg3","mg4","mg7","cyberster","kwid","stepway","g90","temerario","empow"];
-
+ 
 function detectTipo(model){
   if(!model) return null;
   const m=" "+model.toLowerCase()+" ";
@@ -186,7 +186,7 @@ function detectTipo(model){
   // 3) Por defecto, camioneta (la mayoría del catálogo Viking)
   return "camioneta";
 }
-
+ 
 const P = {
   lat:{2:{v:54000,p:66000},4:{v:89000,p:99000},6:{v:109000,p:119000}},
   med:{v:25000,p:28000},para:38000,quema:{n:22000,p:30000},puerta:25000,
@@ -200,7 +200,7 @@ const C={
   carga:"VK135",techo:{coche:"VK136",camioneta:"VK137"},
 };
 const mxn=n=>"$"+Math.round(n).toLocaleString("es-MX");
-
+ 
 // ── Peso aproximado agregado (kg) por zona ────────────────────────────────
 // Cifras de referencia para una camioneta grande; el coche se ajusta a la baja.
 // Calibradas con la guía: todos los vidrios Plus ≈27 kg · Kevlar 4 puertas+cajuela ≈14 kg.
@@ -218,7 +218,7 @@ const W = {
   techo: 5.0,
   cocheFactor: 0.8, // un coche tiene paneles/cristales más chicos que una camioneta
 };
-
+ 
 // Peso aproximado agregado según lo que eligió el cliente y el tipo de vehículo
 function estPeso(o){
   let w=0;
@@ -236,7 +236,7 @@ function estPeso(o){
   if(o.tipo==="coche") w *= W.cocheFactor;
   return w;
 }
-
+ 
 // Días hábiles estimados en taller según el alcance de la opción
 function diasHabiles(o){
   const todosVidrios = o.lat>=6 && o.med && o.para;   // vidrios completos
@@ -247,7 +247,7 @@ function diasHabiles(o){
   if(o.posteB||o.posteC||o.posteD||o.carga||o.cajuela||o.techo) d+=3; // Kevlar en carrocería
   return d;
 }
-
+ 
 // Nivel de cobertura aproximado según lo elegido, con sugerencia de mejora (upsell)
 function nivelCobertura(o){
   const vidrios=(o.lat?1:0)+(o.med?1:0)+(o.para?1:0)+(o.quema?1:0);
@@ -268,19 +268,19 @@ function nivelCobertura(o){
   }
   return {nivel, idx, sugerencia};
 }
-
+ 
 // Fecha desplazada N días, formateada en español
 function fechaMas(dias){
   const d=new Date(); d.setDate(d.getDate()+dias);
   return d.toLocaleDateString("es-MX",{day:"numeric",month:"long",year:"numeric"});
 }
 const today=new Date().toLocaleDateString("es-MX",{day:"numeric",month:"long",year:"numeric"});
-
+ 
 // Capitaliza cada palabra respetando acentos: "maría de la cruz" -> "María De La Cruz"
 function capitalizar(s){
   return String(s||"").toLowerCase().replace(/(^|[\s'’\-])(\p{L})/gu, (m,sep,ch)=>sep+ch.toUpperCase()).trim();
 }
-
+ 
 // Datos de contacto de Viking (editar con los reales)
 const VIKING_INFO = {
   tel: "55 0000 0000",
@@ -288,14 +288,14 @@ const VIKING_INFO = {
   direccion: "Dirección del taller, Ciudad",
   web: "gav.mx · @vikingbyGAV",
 };
-
+ 
 // WhatsApp para el QR de la cotización. Formato internacional sin signos: 52 + 10 dígitos.
 // Ejemplo CDMX: "525512345678"
 const WHATSAPP = "523332460342";
-
+ 
 // URL del Web App de Google Sheets (pegar la que termina en /exec)
 const SHEETS_URL = "https://script.google.com/macros/s/AKfycbxfGIH87EauXma94CqNSme1p4z3OkYaXoHAxJBrSKGWHHzLYOdhsz47kCxThH4cYS_qag/exec";
-
+ 
 // Guarda una cotización en Google Sheets
 async function guardarEnSheets(payload){
   if(!SHEETS_URL || SHEETS_URL.startsWith("PEGAR")) throw new Error("URL de Sheets no configurada");
@@ -305,7 +305,7 @@ async function guardarEnSheets(payload){
   });
   return res.json().catch(()=>({ok:true})); // Apps Script a veces no devuelve JSON limpio
 }
-
+ 
 // Folio único basado en fecha + aleatorio (ej. VK-260623-4821)
 function makeFolio(){
   const d=new Date();
@@ -315,12 +315,12 @@ function makeFolio(){
   const rnd=Math.floor(1000+Math.random()*9000);
   return `VK-${yy}${mm}${dd}-${rnd}`;
 }
-
+ 
 const INK="#0a0a0a"; const MUTED="#86868b"; const SEP="rgba(0,0,0,0.07)";
-
+ 
 // Normaliza para comparar sin acentos ni mayúsculas
 const norm=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
-
+ 
 // Campo "ciego": el asesor escribe y solo aparece su coincidencia. Catálogo cerrado.
 function AsesorPicker({value,onChange}){
   const [q,setQ]=useState(value||"");
@@ -361,7 +361,7 @@ const OPT_NAMES=["Opción A","Opción B","Opción C"];
 const ATIENDE = ["Ángel Álvarez","Bruno Balcázar","Carlos García","Carlos Mateos","Efrén Canto","Javier Fernández","Jesús Landeros","Julio de Botton","Miguel Ángel Chain"];
 const ADMIN_PASS = "viking2026"; // cambia esto por tu contraseña de admin
 const blankOpt=()=>({tipo:"camioneta",lat:null,latT:"p",med:false,medT:"p",para:false,quema:null,puertas:0,cajuela:false,posteB:false,posteC:false,posteD:false,carga:false,techo:false});
-
+ 
 function Shield({size=34,color="currentColor"}){
   return(
     <svg width={size} height={size*1.18} viewBox="0 0 44 52" fill="none">
@@ -371,14 +371,14 @@ function Shield({size=34,color="currentColor"}){
     </svg>
   );
 }
-
+ 
 function pickView(o){
   if(o.lat||o.puertas>0||o.postes>0||o.carga||o.techo) return "lateral";
   if(o.med||o.cajuela) return "trasera";
   if(o.para) return "frontal";
   return "lateral";
 }
-
+ 
 function viewsWithContent(o){
   const v=[];
   const anyPoste=o.posteB||o.posteC||o.posteD;
@@ -388,12 +388,12 @@ function viewsWithContent(o){
   return v;
 }
 const VIEW_LABEL={lateral:"Lateral",frontal:"Frente",trasera:"Atrás"};
-
+ 
 function CarStage({o}){
   const available=viewsWithContent(o);
   const [manual,setManual]=useState(null);
   const view = (manual && available.includes(manual)) ? manual : (available[0] || "lateral");
-
+ 
   const base = view==="frontal"?IMG.base_frontal : view==="trasera"?IMG.base_trasera : IMG.base_lateral;
   const layers=[];
   if(view==="lateral"){
@@ -413,9 +413,9 @@ function CarStage({o}){
     if(o.med) layers.push(IMG.ov_medallon);
     if(o.cajuela) layers.push(IMG.ov_cajuela);
   }
-
+ 
   const layerStyle={position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain"};
-
+ 
   return(
     <div style={{borderRadius:18,background:"linear-gradient(160deg,#fbfbfd,#f2f2f4)",marginBottom:"2rem",padding:"0.75rem"}}>
       <div style={{position:"relative",width:"100%",aspectRatio:"16 / 7",maxHeight:300,margin:"0 auto"}}>
@@ -439,7 +439,7 @@ function CarStage({o}){
     </div>
   );
 }
-
+ 
 function buildItems(o){
   const l=[];
   const grosor=(t,ceja)=>t==="p"?("+6.0 mm"+(ceja?" (ceja de acero en cristales operables)":"")):"+3.5 mm";
@@ -461,7 +461,7 @@ function buildItems(o){
   return l;
 }
 function totals(o){const items=buildItems(o);const sub=items.reduce((s,i)=>s+i.price,0);const iva=Math.round(sub*.16);return{items,sub,iva,total:sub+iva};}
-
+ 
 // Devuelve las capas (base + overlays) de una vista específica para una opción
 function viewLayers(o,view){
   const base = view==="frontal"?IMG.base_frontal : view==="trasera"?IMG.base_trasera : IMG.base_lateral;
@@ -485,7 +485,7 @@ function viewLayers(o,view){
   }
   return {base,layers};
 }
-
+ 
 // Ilustración para el PDF: todas las vistas con contenido, en columna
 function QuoteIllustration({o}){
   const views=viewsWithContent(o);
@@ -521,7 +521,7 @@ function QuoteIllustration({o}){
     </div>
   );
 }
-
+ 
 function Pill({active,onClick,children,sm}){
   return <button onClick={onClick} style={{padding:sm?"6px 14px":"8px 18px",borderRadius:100,fontSize:sm?13:14,cursor:"pointer",fontFamily:"inherit",background:active?INK:"transparent",color:active?"#fff":"#555",border:`1.5px solid ${active?INK:"#ccc"}`,whiteSpace:"nowrap"}}>{children}</button>;
 }
@@ -541,7 +541,7 @@ function SHead({children}){
 function Sel({value,onChange,disabled,children,w}){
   return <div style={{position:"relative",width:w}}><select value={value} onChange={e=>onChange(e.target.value)} disabled={disabled} style={{appearance:"none",WebkitAppearance:"none",width:"100%",padding:"9px 30px 9px 12px",border:`1px solid rgba(0,0,0,${disabled?.07:.14})`,borderRadius:10,fontSize:14,background:"#f5f5f7",color:disabled?MUTED:"#0a0a0a",fontFamily:"inherit",cursor:disabled?"default":"pointer"}}>{children}</select><svg style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",pointerEvents:"none",opacity:disabled?.3:.5}} width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round"/></svg></div>;
 }
-
+ 
 function OptionEditor({o,set}){
   const u=(k,v)=>set({...o,[k]:v});
   function changeTipo(t){set({...o,tipo:t,carga:false,lat:(t==="coche"&&o.lat===6)?null:o.lat});}
@@ -595,7 +595,7 @@ function OptionEditor({o,set}){
     </div>
   );
 }
-
+ 
 function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
   const active=opts.filter(o=>buildItems(o).length>0);
   const multi=active.length>1;
@@ -605,7 +605,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
   const [saving,setSaving]=useState(false);
   const [saved,setSaved]=useState(false);
   const [saveErr,setSaveErr]=useState("");
-
+ 
   // Guarda en el historial (se llama solo al imprimir). No reintenta si ya se guardó.
   async function guardar(){
     if(saved || saving) return;
@@ -629,7 +629,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
     }catch(e){ setSaveErr(e.message||"Error al guardar"); }
     setSaving(false);
   }
-
+ 
   // Al imprimir: guarda automáticamente en segundo plano y abre el diálogo de impresión.
   // El título de la página se usa como nombre del PDF (ej. "Cotización Viking VK-260720-8351 · Land Rover Defender 110 2023").
   function imprimirYGuardar(){
@@ -639,7 +639,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
     window.print();
     setTimeout(()=>{document.title=prev;},1000);
   }
-
+ 
   return(
     <div>
       <style>{`@media print{.np{display:none!important}.sec{break-inside:avoid}.optcore{break-inside:avoid}.illus{break-inside:avoid}}`}</style>
@@ -661,7 +661,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
           ))}
         </div>
         {multi&&<div style={{fontSize:13,color:"#666",marginBottom:18}}>Esta cotización incluye {active.length} opciones de protección para que elijas la que mejor se ajuste a tus necesidades.</div>}
-
+ 
         <div className="sec" style={{marginBottom:24}}>
           <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:8}}>¿Qué es Viking?</div>
           <div style={{fontSize:12.5,color:"#444",lineHeight:1.65}}>
@@ -671,11 +671,11 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
             <b>Viking Plus</b> (+6.0 mm) es nuestro nivel máximo de refuerzo de vidrios: suma una ceja de acero en los cristales operables y acabado transparente o ahumado al 50%.
           </div>
         </div>
-
+ 
         <div className="sec" style={{marginBottom:20,fontSize:10,color:"#888",fontStyle:"italic",lineHeight:1.5}}>
           Viking aumenta la resistencia del vidrio original y da más tiempo de reacción. No es un blindaje certificado ni lo sustituye. Resultados basados en pruebas internas no certificadas.
         </div>
-
+ 
         {active.map((o,idx)=>{
           const {items,sub,iva,total}=totals(o);
           return(
@@ -733,7 +733,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
             </div>
           );
         })}
-
+ 
         <div className="sec" style={{marginTop:24}}>
           <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:12}}>¿Por qué Viking?</div>
           <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
@@ -750,7 +750,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
             ))}
           </div>
         </div>
-
+ 
         <div className="sec" style={{marginTop:22}}>
           <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:10}}>Garantía</div>
           <ul style={{margin:0,paddingLeft:18,fontSize:11.5,color:"#555",lineHeight:1.7}}>
@@ -760,7 +760,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
             <li>Aplica para el propietario original; no es transferible. No cubre accidentes, golpes ni vandalismo.</li>
           </ul>
         </div>
-
+ 
         <div className="sec" style={{marginTop:22}}>
           <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:12}}>Próximos pasos</div>
           <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
@@ -781,7 +781,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
             ))}
           </div>
         </div>
-
+ 
         <div className="sec" style={{marginTop:24,paddingTop:18,borderTop:"1px solid #e5e5e3"}}>
           <div style={{fontSize:11,fontWeight:600,color:"#111",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:10}}>Notas y condiciones</div>
           <ol style={{margin:0,paddingLeft:18,fontSize:11.5,color:"#555",lineHeight:1.7}}>
@@ -797,7 +797,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
             <li>Vigencia de la cotización: 30 días a partir de la fecha de emisión.</li>
           </ol>
         </div>
-
+ 
         <div className="sec" style={{marginTop:22,padding:"16px 18px",background:"#f7f7f5",borderRadius:12,display:"flex",alignItems:"center",gap:18}}>
           <img
             src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=0&data=${encodeURIComponent(`https://wa.me/${WHATSAPP}?text=`+encodeURIComponent(`Hola, quiero proceder con la cotización ${folio}${vehicleStr?` de mi ${vehicleStr}`:""}.`))}`}
@@ -811,7 +811,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
             </div>
           </div>
         </div>
-
+ 
         <div style={{marginTop:24,paddingTop:16,borderTop:"1.5px solid #111",display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:20}}>
           <div>
             <div style={{fontSize:10,color:"#5b5b60",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:5}}>Contacto</div>
@@ -846,7 +846,7 @@ function PrintView({opts,name,tel,vehicleStr,asesor,folio,onBack}){
     </div>
   );
 }
-
+ 
 // ── Acceso admin (disparador discreto al pie) ──────────────────────
 function AdminGate({onEnter}){
   const [open,setOpen]=useState(false);
@@ -869,7 +869,7 @@ function AdminGate({onEnter}){
     </div>
   );
 }
-
+ 
 // ── Vista admin: historial de cotizaciones (lee de Google Sheets) ──
 function AdminView({onBack}){
   const [rows,setRows]=useState(null);
@@ -955,7 +955,7 @@ function AdminView({onBack}){
     </div>
   );
 }
-
+ 
 export default function App(){
   const [view,setView]=useState("config");
   const [admin,setAdmin]=useState(false);
@@ -964,16 +964,16 @@ export default function App(){
   const [folio]=useState(makeFolio);
   const [opts,setOpts]=useState([blankOpt()]);
   const [active,setActive]=useState(0);
-
+ 
   if(admin) return <AdminView onBack={()=>setAdmin(false)}/>;
-
+ 
   const models=brand&&BRANDS[brand]?BRANDS[brand]:[];
   const vehicleStr=[brand,model,year].filter(Boolean).join(" ");
   const cliente=[capitalizar(nombre),capitalizar(apellidos)].filter(Boolean).join(" ");
   const anyFilled=opts.some(o=>buildItems(o).length>0);
   const multi=opts.length>1;
   const curTotal=totals(opts[active]);
-
+ 
   // Campos obligatorios para poder ver la cotización
   const faltantes=[];
   if(!asesor) faltantes.push("Atendido por");
@@ -985,7 +985,7 @@ export default function App(){
   if(!year) faltantes.push("Año");
   if(!anyFilled) faltantes.push("Al menos un servicio");
   const puedeVer = faltantes.length===0;
-
+ 
   function setOpt(i,next){setOpts(p=>p.map((o,idx)=>idx===i?next:o));}
   function chooseModel(m){
     setModel(m);
@@ -1002,9 +1002,9 @@ export default function App(){
     setOpts(p=>p.filter((_,idx)=>idx!==i));
     setActive(a=>Math.max(0,a>=i?a-1:a));
   }
-
+ 
   if(view==="preview") return <div style={{fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",maxWidth:600,margin:"0 auto",padding:"2rem 1rem"}}><PrintView opts={opts} name={cliente} tel={tel} vehicleStr={vehicleStr} asesor={asesor} folio={folio} onBack={()=>setView("config")}/></div>;
-
+ 
   return(
     <div style={{fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",maxWidth:600,margin:"0 auto",padding:"0 1rem 6rem",position:"relative"}}>
       <div style={{padding:"2rem 0 0"}}>
@@ -1012,11 +1012,11 @@ export default function App(){
           <Logo h={88} variant="negro"/>
           <div style={{fontSize:11,color:MUTED,letterSpacing:"0.06em",borderLeft:`1px solid ${SEP}`,paddingLeft:12}}>{today}</div>
         </div>
-
+ 
         <div style={{marginBottom:"1.5rem"}}>
           <Row first label="Atendido por *" right={<AsesorPicker value={asesor} onChange={setAsesor}/>}/>
         </div>
-
+ 
         <div style={{marginBottom:"1.5rem"}}>
           <SHead>Cliente</SHead>
           <Row first label="Nombre(s) *" right={<input type="text" value={nombre} onChange={e=>setNombre(e.target.value)} placeholder="Nombre(s)" style={{padding:"9px 12px",border:"1px solid rgba(0,0,0,.12)",borderRadius:10,fontSize:14,background:"#f5f5f7",fontFamily:"inherit",width:200}}/>}/>
@@ -1026,7 +1026,7 @@ export default function App(){
           <Row label="Modelo *" right={<Sel value={model} onChange={chooseModel} disabled={!brand} w={165}><option value="">Seleccionar</option>{models.map(m=><option key={m} value={m}>{m}</option>)}</Sel>}/>
           <Row label="Año *" right={<Sel value={year} onChange={setYear} w={110}><option value="">Año</option>{YEARS.map(y=><option key={y} value={y}>{y}</option>)}</Sel>}/>
         </div>
-
+ 
         {multi&&(
           <div style={{display:"flex",gap:6,marginBottom:"2rem",background:"#f5f5f7",padding:5,borderRadius:14}}>
             {opts.map((o,i)=>{
@@ -1040,15 +1040,15 @@ export default function App(){
             })}
           </div>
         )}
-
+ 
         <OptionEditor o={opts[active]} set={n=>setOpt(active,n)}/>
-
+ 
         <div style={{marginTop:"2rem",display:"flex",justifyContent:"center",gap:20}}>
           {opts.length<3&&<button onClick={compareNew} style={{background:"none",border:"none",fontSize:14,color:INK,cursor:"pointer",fontFamily:"inherit",fontWeight:500}}>+ Comparar otra opción</button>}
           {multi&&<button onClick={()=>removeOpt(active)} style={{background:"none",border:"none",fontSize:14,color:"#b91c1c",cursor:"pointer",fontFamily:"inherit"}}>Quitar {OPT_NAMES[active]}</button>}
         </div>
       </div>
-
+ 
       {anyFilled&&(
         <div style={{position:"sticky",bottom:0,marginTop:"2rem",background:"rgba(255,255,255,0.85)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",borderTop:`1px solid ${SEP}`,paddingTop:"0.85rem",paddingBottom:"0.85rem"}}>
           {curTotal.items.length>0 && (
@@ -1083,8 +1083,9 @@ export default function App(){
           </div>
         </div>
       )}
-
+ 
       <AdminGate onEnter={()=>setAdmin(true)}/>
     </div>
   );
 }
+ 
