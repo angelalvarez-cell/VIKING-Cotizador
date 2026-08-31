@@ -358,7 +358,7 @@ function AsesorPicker({value,onChange}){
   );
 }
 const OPT_NAMES=["Opción A","Opción B","Opción C"];
-const ATIENDE = ["Ángel Álvarez","Bruno Balcázar","Carlos García","Carlos Mateos","Efrén Canto","Javier Fernández","Jesús Landeros","Julio de Botton","Miguel Ángel Chain"];
+const ATIENDE = ["Ángel Álvarez","Bruno Balcázar","Carlos García","Carlos Mateos","Efrén Canto","Javier Fernández","Jesús Landeros","Julio de Botton","Miguel Ángel Chain","Tony Berensten"];
 const ADMIN_PASS = "viking2026"; // cambia esto por tu contraseña de admin
 const blankOpt=()=>({tipo:"camioneta",lat:null,latT:"p",med:false,medT:"p",para:false,quema:null,puertas:0,cajuela:false,posteB:false,posteC:false,posteD:false,carga:false,techo:false});
 
