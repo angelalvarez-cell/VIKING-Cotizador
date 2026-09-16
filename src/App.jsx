@@ -835,15 +835,19 @@ export default function App(){
   if(!brand) faltantes.push("Marca");
   if(!model) faltantes.push("Modelo");
   if(!year) faltantes.push("Año");
+  if(model && !opts[active].tipo) faltantes.push("Tipo de vehículo (coche o camioneta)");
   if(!anyFilled) faltantes.push("Al menos un servicio");
   const puedeVer = faltantes.length===0;
 
   function setOpt(i,next){setOpts(p=>p.map((o,idx)=>idx===i?next:o));}
   function chooseModel(m){
     setModel(m);
-    // tipoDe devuelve null cuando el tipo lo debe elegir el asesor (marca/modelo "Otro"): no se asume nada.
+    // tipoDe devuelve null cuando el tipo lo debe elegir el asesor (marca/modelo "Otro").
+    // En ese caso se limpia el tipo heredado: nada se cotiza con un valor asumido.
     const t=tipoDe(brand,m);
-    if(t) setOpts(p=>p.map(o=>({...o,tipo:t,carga:t==="coche"?false:o.carga,lat:(t==="coche"&&o.lat===6)?null:o.lat})));
+    setOpts(p=>p.map(o=>t
+      ? ({...o,tipo:t,carga:t==="coche"?false:o.carga,lat:(t==="coche"&&o.lat===6)?null:o.lat})
+      : ({...o,tipo:null,carga:false,lat:o.lat===6?null:o.lat})));
   }
   function compareNew(){
     if(opts.length>=3)return;
@@ -881,7 +885,7 @@ export default function App(){
           {(()=>{
             if(!brand||!model) return null;
             const avisos=[];
-            if(tipoDe(brand,model)===null) avisos.push("Selecciona manualmente si es coche o camioneta.");
+            if(!opts[active].tipo) avisos.push("Este modelo no trae tipo confirmado: elige coche o camioneta antes de cotizar.");
             if(model && carroceriaDe(brand,model)==="por confirmar") avisos.push("Carrocería sin confirmar: verifica el vehículo antes de cotizar.");
             if(year){
               const g=generacionDe(brand,model,Number(year));
